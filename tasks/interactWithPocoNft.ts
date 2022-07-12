@@ -9,7 +9,7 @@ task("interact:mint", "").setAction(async (args, hre: HardhatRuntimeEnvironment)
   const { deployer } = await hre.getNamedAccounts();
   const pocoNft: PocoNft = await hre.ethers.getContract("PocoNft");
 
-  const hexifiedUuid = "0x" + uuid4().replace(/-/g, "");
+  const hexifiedUuid = "0x" + "01" + uuid4().replace(/-/g, "");
 
   const result = await pocoNft.mintNft(hre.ethers.utils.arrayify(hexifiedUuid), "ipfs://123", {
     value: hre.ethers.utils.parseEther("2"),

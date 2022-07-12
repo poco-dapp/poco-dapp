@@ -2,12 +2,11 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, utils } from "ethers";
 
 import { DEVELOPMENT_CHAINS, networkConfig } from "../helper-hardhat-config";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, network, getNamedAccounts } = hre;
+  const { deployments, network, getNamedAccounts, ethers } = hre;
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
@@ -40,6 +39,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // log("----------------------------------------------------")
 };
 
-func.tags = ["all"];
+func.tags = ["all", "PocoNft"];
 
 export default func;

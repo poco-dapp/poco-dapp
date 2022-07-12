@@ -16,16 +16,16 @@ contract PocoNft is Ownable, ERC721URIStorage {
   uint256 public immutable mintFeeCents;
   AggregatorV3Interface public priceFeed;
 
-  mapping(bytes16 => uint256) private tokenUuidToId;
-  Counters.Counter private tokenIds;
+  mapping(bytes17 => uint256) private nftUidToId;
+  Counters.Counter private nftIds;
 
-  event NftMinted(address indexed minter, bytes16 indexed tokenUuid, string tokenUri);
+  event NftMinted(address indexed minter, bytes17 indexed nftUid, string nftUri);
 
-  event TokenUriUpdated(address indexed owner, bytes16 indexed tokenUuid, string tokenUri);
+  event NftUriUpdated(address indexed owner, bytes17 indexed nftUid, string nftUri);
 
-  modifier onlyNftOwner(bytes16 _tokenUuid) {
-    uint256 tokenId = getTokenIdByUuid(_tokenUuid);
-    require(_msgSender() == ownerOf(tokenId), "Caller is not owner.");
+  modifier onlyNftOwner(bytes17 _nftUid) {
+    uint256 nftId = getNftIdByUid(_nftUid);
+    require(_msgSender() == ownerOf(nftId), "Caller is not owner.");
     _;
   }
 
@@ -34,28 +34,28 @@ contract PocoNft is Ownable, ERC721URIStorage {
     priceFeed = AggregatorV3Interface(_priceFeed);
   }
 
-  function mintNft(bytes16 _tokenUuid, string memory _tokenUri) public payable onlyOwner {
+  function mintNft(bytes17 _nftUid, string memory _nftUri) public payable {
     uint256 ethAmountInCents = msg.value.getConversionRateCents(priceFeed);
     require(
-      ethAmountInCents >= mintFeeCents && ethAmountInCents < mintFeeCents + 10,
+      ethAmountInCents >= mintFeeCents - 10 && ethAmountInCents < mintFeeCents + 10,
       "Unexpected mint fee."
     );
-    require(bytes(_tokenUri).length != 0, "Token URI needs to be valid.");
-    require(tokenUuidToId[_tokenUuid] == 0, "NFT with provided UID already exists.");
+    require(bytes(_nftUri).length != 0, "Nft URI needs to be valid.");
+    require(nftUidToId[_nftUid] == 0, "NFT with provided UID already exists.");
 
-    uint256 newTokenId = tokenIds.current();
-    _safeMint(_msgSender(), newTokenId);
-    _setTokenURI(newTokenId, _tokenUri);
-    tokenUuidToId[_tokenUuid] = newTokenId;
+    uint256 newNftId = nftIds.current();
+    _safeMint(_msgSender(), newNftId);
+    _setTokenURI(newNftId, _nftUri);
+    nftUidToId[_nftUid] = newNftId;
 
-    tokenIds.increment();
-    emit NftMinted(_msgSender(), _tokenUuid, _tokenUri);
+    nftIds.increment();
+    emit NftMinted(_msgSender(), _nftUid, _nftUri);
   }
 
-  function getTokenUriByUuid(bytes16 _tokenUuid) public view returns (string memory) {
-    uint256 tokenId = getTokenIdByUuid(_tokenUuid);
-    string memory tokenUri = tokenURI(tokenId);
-    return tokenUri;
+  function getNftUriByUid(bytes17 _nftUid) public view returns (string memory) {
+    uint256 nftId = getNftIdByUid(_nftUid);
+    string memory nftUri = tokenURI(nftId);
+    return nftUri;
   }
 
   function withdrawContractBalance() external onlyOwner {
@@ -63,17 +63,14 @@ contract PocoNft is Ownable, ERC721URIStorage {
     require(success, "Withdrawal error.");
   }
 
-  function updateTokenUri(bytes16 _tokenUuid, string memory _tokenUri)
-    external
-    onlyNftOwner(_tokenUuid)
-  {
-    _setTokenURI(getTokenIdByUuid(_tokenUuid), _tokenUri);
-    emit TokenUriUpdated(_msgSender(), _tokenUuid, _tokenUri);
+  function updateNftUri(bytes17 _nftUid, string memory _nftUri) external onlyNftOwner(_nftUid) {
+    _setTokenURI(getNftIdByUid(_nftUid), _nftUri);
+    emit NftUriUpdated(_msgSender(), _nftUid, _nftUri);
   }
 
-  function getTokenIdByUuid(bytes16 _tokenUuid) private view returns (uint256) {
-    uint256 tokenId = tokenUuidToId[_tokenUuid];
-    require(tokenId != 0, "UID does not exist.");
-    return tokenId;
+  function getNftIdByUid(bytes17 _nftUid) public view returns (uint256) {
+    uint256 nftId = nftUidToId[_nftUid];
+    require(nftId != 0, "UID does not exist.");
+    return nftId;
   }
 }

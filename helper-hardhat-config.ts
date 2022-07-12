@@ -26,3 +26,6 @@ export const networkConfig: networkConfigInfo = {
     mintFeeCents: 100,
   },
 };
+
+export const frontEndContractsFile = "./frontend/utils/contractsConfig.json";
+export const frontEndAbiFile = "./frontend/utils/abi.json";
