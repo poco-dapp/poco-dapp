@@ -18,16 +18,29 @@ export class Uid {
     return new Uid(`${POCO_UID_V1_PREFIX}${uuid4}`);
   }
 
-  static fromDisplayFormat(value: string): Uid {
+  static parse(value: string): Uid {
+    if (!this.isValid(value)) {
+      throw new Error("Invalid UID");
+    }
+
     const removeDashes = value.replace(/-/g, "");
-    return new Uid(removeDashes);
+    const removeHexPrefix = removeDashes.replace("0x", "");
+    return new Uid(removeHexPrefix);
+  }
+
+  static isValid(value: string): boolean {
+    const withDashes =
+      /^[0-1][0-9]\b-[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+    const withoutDashes = /^[0-1][0-9][0-9a-fA-F]{32}$/;
+    const withHexPrefix = /^0x[0-1][0-9][0-9a-fA-F]{32}$/;
+    return withDashes.test(value) || withoutDashes.test(value) || withHexPrefix.test(value);
   }
 
   /**
    * UID for display has a dash between POCO version prefix and UUID as well as uses the UUID representation with dashes eg. 1-5848ACB-7CBC-4ABA-B6AC-DD755DB0593F
    * eg. 01-5848ACB-7CBC-4ABA-B6AC-DD755DB0593F
    */
-  formatUidForDisplay(): string {
+  toDisplayFormat(): string {
     const bytesArray = ethers.utils.arrayify(this.toHexString());
     const pocoVersion = ethers.utils.hexlify(bytesArray[0]).slice(2);
     const uuidBytesArray = bytesArray.slice(1);

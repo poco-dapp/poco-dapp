@@ -58,13 +58,13 @@ const Navbar: FC = () => {
         size="large"
         style={{ width: 600 }}
         onSearch={(searchTerm) => {
-          if (!searchTerm) {
+          if (!Uid.isValid(searchTerm)) {
             message.error("Invalid UID for search");
             return;
           }
           setIsModalVisible(true);
           setIsLoadingNftRecord(true);
-          setUid(Uid.fromDisplayFormat(searchTerm));
+          setUid(Uid.parse(searchTerm));
         }}
         css={css`
           &.ant-input-group-wrapper-lg .ant-input-group .ant-input-affix-wrapper-lg {

@@ -4,6 +4,8 @@ import { toString } from "uint8arrays/to-string";
 
 const IPFS_URI_PREFIX = "ipfs://";
 
+const IPFS_PUBLIC_HTPP_GATEWAY = "ipfs.dweb.link";
+
 export interface NftMetadata {
   uid: string;
   organizationName: string;
@@ -37,4 +39,8 @@ export async function getMetaDataFromIpfs(ipfsCid: string): Promise<NftMetadata>
   const uint8arr = await toBuffer(client.cat(normalizedCid));
   const result = JSON.parse(toString(uint8arr));
   return result;
+}
+
+export function generateIpfsHttpLink(ipfsCid: string): string {
+  return `${ipfsCid}.${IPFS_PUBLIC_HTPP_GATEWAY}`;
 }

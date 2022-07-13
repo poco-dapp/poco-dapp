@@ -47,94 +47,14 @@ import Instructions from "../components/Instructions";
 import NftRecordList from "../components/NftRecordList";
 import Navbar from "../components/Navbar";
 import { ChainConfigContext } from "../components/AppStateContainer";
+import useWalletConnection from "../utils/custom-hooks";
 
 const { Title } = Typography;
 const { Search } = Input;
 
 const Home: NextPage = () => {
-  const { address, isConnected } = useAccount();
-  const { chain } = useNetwork();
-  const provider = useProvider();
-  const chainConfig = useContext(ChainConfigContext);
-
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [nftRecordList, setNftRecordList] = useState([]);
-
-  const contractWrite = useContractWrite({
-    addressOrName: chainConfig?.address,
-    contractInterface: abi,
-    functionName: "mintNft",
-    onError(error) {
-      openNotificationWithIcon("error", "Contract Update Error", error.reason || error.message);
-    },
-    onSuccess(data) {
-      handleMintSuccess(data);
-    },
-  });
-
-  const pocoNftContract: Contract = useContract({
-    addressOrName: chainConfig?.address,
-    contractInterface: abi,
-    signerOrProvider: provider,
-  });
-
-  useEffect(() => {
-    if (isConnected) {
-      setIsWalletConnected(true);
-    } else {
-      setIsWalletConnected(false);
-    }
-  }, [isConnected]);
-
-  const handleFormSubmit = async (values: any) => {
-    try {
-      const documentUri = values.fileToUpload
-        ? await uploadFileToIpfs(values.fileToUpload[0].originFileObj)
-        : null;
-
-      const uid = Uid.generateUid();
-
-      const metadata: NftMetadata = {
-        uid: uid.toString(),
-        organizationName: values.organizationName,
-        organizationWebsite: values.organizationWebsite || null,
-        organizationAddress: values.organizationAddress || null,
-        productName: values.productName,
-        productReferenceNum: values.productReferenceNum,
-        productDescription: values.productDescription || null,
-        documentUri: documentUri,
-      };
-      const metadataUri = await uploadMetaDataToIpfs(metadata);
-
-      const appFeesInMatic = await getAppFeesInMatic(chain?.id);
-
-      console.log("uid", uid.formatUidForDisplay());
-
-      contractWrite.writeAsync({
-        args: [uid.toHexString(), metadataUri],
-        overrides: { value: ethers.utils.parseEther(String(appFeesInMatic)) },
-      });
-      // show modal with spinner
-    } catch (e: any) {
-      openNotificationWithIcon("error", "Form Submission Error", e.message);
-    }
-  };
-
-  const handleMintSuccess = async (tx: ethers.providers.TransactionResponse) => {
-    await tx.wait(chainConfig.blockConfirmations);
-    console.log("mintSuccess");
-
-    const nftMintedEventFilter = pocoNftContract.filters.NftMinted();
-
-    const events = await pocoNftContract.queryFilter(nftMintedEventFilter, "latest");
-
-    events.forEach((event) => {
-      if (event.transactionHash === tx.hash) {
-        console.log("event", event.args.nftUid, event.args.nftUri);
-        // update modal
-      }
-    });
-  };
+  const isWalletConnected = useWalletConnection();
 
   return (
     <div>
@@ -166,7 +86,7 @@ const Home: NextPage = () => {
                   </Space>
                 }
               />
-              <ProductForm onFormSubmit={handleFormSubmit} isWalletConnected={isWalletConnected} />
+              <ProductForm />
             </Space>
           </Col>
           {isWalletConnected && nftRecordList.length > 0 && (

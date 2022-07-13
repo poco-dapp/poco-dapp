@@ -1,6 +1,6 @@
-import React, { FC, useContext, useEffect, useState } from "react";
+import React, { FC, useContext, useEffect, useRef, useState } from "react";
 
-import { Button, Modal, Space, Spin, Statisti, Typography, Descriptions } from "antd";
+import { Button, Modal, Space, Spin, Statisti, Typography, Descriptions, Divider } from "antd";
 import { Uid } from "../utils/uid-generator";
 import { css, jsx } from "@emotion/react";
 import { ChainConfigContext } from "./AppStateContainer";
@@ -9,6 +9,8 @@ import abi from "../utils/abi.json";
 import { Result } from "ethers/lib/utils";
 import { getMetaDataFromIpfs, NftMetadata } from "../utils/ipfs-helper";
 import JsBarcode from "jsbarcode";
+import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
+import { downloadFile } from "../utils/download-helper";
 
 const { Text, Title } = Typography;
 
@@ -31,6 +33,8 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 }) => {
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
+  const barcodeImgRef = useRef(null);
+  const qrcodeCanvasRef = useRef(null);
 
   const [nftMetadata, setNftMetadata] = useState<NftMetadata | null>(null);
 
@@ -40,20 +44,28 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
     signerOrProvider: provider,
   });
 
+  useEffect(() => {
+    if (uid) {
+      loadNft(uid);
+    }
+  }, [uid]);
+
   const loadNft = async (uid: Uid) => {
     setNftMetadata(null);
     const nftUri = await pocoNftContract.getNftUriByUid(uid.toHexString());
     const metadata = await getMetaDataFromIpfs(nftUri);
     setNftMetadata(metadata);
     onFinishLoadingRecord();
-    JsBarcode("#barcode", "Hi!");
+    JsBarcode("#barcode", uid.toDisplayFormat(), {
+      format: "CODE128",
+      width: 1,
+    });
   };
 
-  useEffect(() => {
-    if (uid) {
-      loadNft(uid);
-    }
-  }, [uid]);
+  const handleDownloadQRCode = () => {
+    const canvas: any = document.querySelector(".qrCode > canvas");
+    downloadFile(canvas.toDataURL(), `qrcode_${uid?.toDisplayFormat()}.png`);
+  };
 
   return (
     <Modal
@@ -82,19 +94,27 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
         {uid && (
           <div>
             <div>
-              <Text>Product Digital Certificate UID</Text>
+              <Text
+                css={css`
+                  font-size: 16px;
+                  color: gray;
+                `}
+              >
+                Product Digital Certificate UID
+              </Text>
             </div>
             <div>
               <Text
                 css={css`
-                  font-size: 16px;
+                  font-size: 18px;
                   font-weight: 600;
                 `}
                 copyable
               >
-                {uid.formatUidForDisplay()}
+                {uid.toDisplayFormat()}
               </Text>
             </div>
+            <Divider />
             <Descriptions
               css={css`
                 margin-top: 16px;
@@ -121,12 +141,50 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
               <Descriptions.Item label="Product Description">
                 {nftMetadata?.productDescription}
               </Descriptions.Item>
-              <Descriptions.Item label="Document">{nftMetadata?.documentUri}</Descriptions.Item>
+              <Descriptions.Item label="Document">
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    console.log(nftMetadata?.documentUri);
+                  }}
+                >
+                  Download
+                </Button>
+              </Descriptions.Item>
             </Descriptions>
-            <Space>
+            <Space
+              direction="vertical"
+              size={24}
+              css={css`
+                margin-top: 16px;
+                font-size: 16px;
+              `}
+            >
               <div>
-                <div>Barcode (Code 128)</div>
-                <img id="barcode" />
+                <a
+                  href={barcodeImgRef?.current?.src}
+                  download={`barcode_${uid.toDisplayFormat()}.png`}
+                >
+                  Download Barcode (CODE128)
+                </a>
+                <img id="barcode" ref={barcodeImgRef} />
+              </div>
+              <div>
+                <div>
+                  <Button
+                    type="link"
+                    onClick={handleDownloadQRCode}
+                    css={css`
+                      padding: 0;
+                      font-size: 16px;
+                    `}
+                  >
+                    Download QRCode
+                  </Button>
+                </div>
+                <div className="qrCode" ref={qrcodeCanvasRef}>
+                  <QRCodeCanvas value={uid.toDisplayFormat()} />,
+                </div>
               </div>
             </Space>
           </div>
