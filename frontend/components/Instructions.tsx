@@ -1,25 +1,8 @@
 import React, { FC } from "react";
-import {
-  Button,
-  Col,
-  Menu,
-  MenuProps,
-  Row,
-  Input,
-  Space,
-  Form,
-  InputNumber,
-  Upload,
-  UploadFile,
-  Typography,
-  Steps,
-  List,
-  Alert,
-  Tag,
-} from "antd";
-import { css, jsx } from "@emotion/react";
+import { Space, Typography, Steps, Alert } from "antd";
+import { css } from "@emotion/react";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 const { Step } = Steps;
 
 const Instructions: FC = () => {
@@ -51,15 +34,22 @@ const Instructions: FC = () => {
           search for the submitted product information.
         </Text>
         <Alert
-          message="Any information submitted will be made public"
+          message={<Title level={5}>Any information submitted will be made public</Title>}
           type="warning"
           description={
-            <p>
-              All product information and documents submitted through the form will be viweable on
-              the public blockchain. Refrain from using any sensitive information.
-              <br />
-              This app is just an interface and is not responsible for any information submitted.
-            </p>
+            <div>
+              <p>
+                All product information and documents submitted through the form will be viweable on
+                the public blockchain and CANNOT be removed or made private.{" "}
+                <strong>Hence refrain from using any sensitive information.</strong>
+              </p>
+              <p>
+                <strong>
+                  This app is just a decentralized and open source interface and is not responsible
+                  for any information submitted.
+                </strong>
+              </p>
+            </div>
           }
           showIcon
         />
@@ -78,12 +68,25 @@ const Instructions: FC = () => {
         <Step
           status="process"
           title="Connect your wallet"
-          description="Ensure you are connected to the Polygon blockchain."
+          description={
+            <div>
+              <p>Ensure you are connected to the Polygon blockchain.</p>
+              <p>
+                <strong>
+                  For each form submission, the app charges $1 fee in Polygon&apos;s MATIC token.
+                </strong>
+              </p>
+              <p>
+                Ensure your wallet has enough to cover app fees ($1) and blockchain transaction fees
+                (~$0.01)
+              </p>
+            </div>
+          }
         />
         <Step
           status="process"
           title="Fill product form"
-          description="Enter key information about the product that you would like to be transparent about such as ceritificate of ownership, authenticity, compliance etc."
+          description="Enter key information about the product that you would like to be transparent about such as ceritificate of authenticity, compliance, inspection etc."
         />
         <Step
           status="process"
@@ -96,6 +99,22 @@ const Instructions: FC = () => {
           description="A user/customer can then use the UID to view the product information with any associated certificate of authenticity, compliance, inspection etc."
         />
       </Steps>
+      <Space
+        css={css`
+          padding-bottom: 48px;
+          text-align: center;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          font-size: 16px;
+        `}
+      >
+        <a>Source code</a>
+        <span>-</span>
+        <a>Give Feedback</a>
+        <span>-</span>
+        <a>Get Test Tokens</a>
+      </Space>
     </div>
   );
 };

@@ -11,6 +11,8 @@ import { downloadFileFromIpfs, getMetaDataFromIpfs, NftMetadata } from "../utils
 import JsBarcode from "jsbarcode";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import { downloadFileUsingDataUri } from "../utils/download-helper";
+import { openNotificationWithIcon } from "../utils/notification-helper";
+import { showErrorNotification } from "../utils/error-helper";
 
 const { Text, Title } = Typography;
 
@@ -52,15 +54,21 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   }, [uid]);
 
   const loadNft = async (uid: Uid) => {
-    setNftMetadata(null);
-    const nftUri = await pocoNftContract.getNftUriByUid(uid.toHexString());
-    const metadata = await getMetaDataFromIpfs(nftUri);
-    setNftMetadata(metadata);
-    onFinishLoadingRecord();
-    JsBarcode("#barcode", uid.toDisplayFormat(), {
-      format: "CODE128",
-      width: 1,
-    });
+    try {
+      setNftMetadata(null);
+      const nftUri = await pocoNftContract.getNftUriByUid(uid.toHexString());
+      const metadata = await getMetaDataFromIpfs(nftUri);
+      setNftMetadata(metadata);
+      onFinishLoadingRecord();
+      JsBarcode("#barcode", uid.toDisplayFormat(), {
+        format: "CODE128",
+        width: 1,
+      });
+    } catch (err) {
+      showErrorNotification("Search Error", err as Error);
+      onFinishLoadingRecord();
+      onCancel();
+    }
   };
 
   const handleDownloadQRCode = () => {
@@ -94,7 +102,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
                 margin-left: 16px;
               `}
             >
-              Loading Product Digital Certificate...
+              Processing Product Digital Certificate...
             </span>
           </div>
         )}
@@ -134,6 +142,9 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
             >
               <Descriptions.Item label="Orgnaization Name">
                 {nftMetadata?.organizationName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Orgnaization Blockchain Wallet">
+                {nftMetadata?.organizationBlockchainWalletAddress}
               </Descriptions.Item>
               <Descriptions.Item label="Orgnaization Address">
                 {nftMetadata?.organizationAddress}

@@ -3,7 +3,7 @@ import { Button, List, Space, Typography } from "antd";
 import * as ethers from "ethers";
 import moment from "moment";
 import React, { FC, useState } from "react";
-import useWalletConnection from "../utils/custom-hooks";
+import { useNftRecordModal } from "../utils/custom-hooks";
 import { Uid } from "../utils/uid-generator";
 import NftRecordModal from "./NftRecordModal";
 
@@ -21,7 +21,7 @@ const ListItem: FC<{ logEvent: LogEvent; onNftUidClick: (uid: Uid) => void }> = 
   logEvent,
   onNftUidClick,
 }) => {
-  const localTime = moment.unix(logEvent.block.timestamp).local().format("MMM DD, YY - HH:mm");
+  const localTime = moment.unix(logEvent.block.timestamp).local().format("MMM DD, YY - hh:mm A");
   const uid = Uid.parse(logEvent.event.args.nftUid);
   const uidForDisplay = uid.toDisplayFormat();
 
@@ -46,26 +46,18 @@ const ListItem: FC<{ logEvent: LogEvent; onNftUidClick: (uid: Uid) => void }> = 
 };
 
 const NftRecordList: FC<NftRecordListProps> = ({ logEvents }) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isLoadingNftRecord, setIsLoadingNftRecord] = useState(false);
-  const [uid, setUid] = useState<Uid | null>(null);
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleFinishLoadingNftRecord = () => {
-    setIsLoadingNftRecord(false);
-  };
+  const {
+    uid,
+    isModalVisible,
+    isLoadingNftRecord,
+    handleOk,
+    handleCancel,
+    handleFinishLoadingNftRecord,
+    launchModalWithUid,
+  } = useNftRecordModal();
 
   const handleListItemClick = (uid: Uid) => {
-    setUid(uid);
-    setIsLoadingNftRecord(true);
-    setIsModalVisible(true);
+    launchModalWithUid(uid);
   };
 
   return (

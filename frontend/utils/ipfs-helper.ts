@@ -12,6 +12,7 @@ const IPFS_PUBLIC_HTPP_GATEWAY = "ipfs.dweb.link";
 export interface NftMetadata {
   uid: string;
   organizationName: string;
+  organizationBlockchainWalletAddress: string;
   organizationAddress: string | null;
   organizationWebsite: string | null;
   productName: string;

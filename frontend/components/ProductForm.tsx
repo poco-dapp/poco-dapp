@@ -29,8 +29,9 @@ import { openNotificationWithIcon } from "../utils/notification-helper";
 import { useAccount, useContract, useContractWrite, useNetwork, useProvider } from "wagmi";
 import { ChainConfigContext } from "./AppStateContainer";
 import abi from "../utils/abi.json";
-import useWalletConnection from "../utils/custom-hooks";
+import { useNftRecordModal, useWalletConnection } from "../utils/custom-hooks";
 import { ethers } from "ethers";
+import { showErrorNotification } from "../utils/error-helper";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -39,13 +40,22 @@ const { Text } = Typography;
 const ProductForm: FC = () => {
   const [numPages, setNumPages] = useState(0);
   const [file, setFile] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isLoadingNftRecord, setIsLoadingNftRecord] = useState(false);
-  const [uid, setUid] = useState<Uid | null>(null);
   const { chain } = useNetwork();
   const provider = useProvider();
   const chainConfig = useContext(ChainConfigContext);
   const { address: walletAddress } = useAccount();
+  const {
+    uid,
+    isModalVisible,
+    isLoadingNftRecord,
+    handleOk,
+    handleCancel,
+    handleFinishLoadingNftRecord,
+    launchModalWithUid,
+    dismissModal,
+    launchModalForProgress,
+  } = useNftRecordModal();
+  const [form] = Form.useForm();
 
   const isWalletConnected = useWalletConnection();
 
@@ -53,9 +63,6 @@ const ProductForm: FC = () => {
     addressOrName: chainConfig?.address,
     contractInterface: abi,
     functionName: "mintNft",
-    onError(error) {
-      openNotificationWithIcon("error", "Contract Update Error", error.reason || error.message);
-    },
     onSuccess(data) {
       handleMintSuccess(data);
     },
@@ -66,18 +73,6 @@ const ProductForm: FC = () => {
     contractInterface: abi,
     signerOrProvider: provider,
   });
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleFinishLoadingNftRecord = () => {
-    setIsLoadingNftRecord(false);
-  };
 
   const normFile = (e: any) => {
     console.log("Upload event:", e);
@@ -96,6 +91,8 @@ const ProductForm: FC = () => {
     });
 
   const handleFormSubmit = async (values: any) => {
+    launchModalForProgress();
+
     try {
       const documentUri = values.fileToUpload
         ? await uploadFileToIpfs(values.fileToUpload[0].originFileObj)
@@ -106,6 +103,7 @@ const ProductForm: FC = () => {
       const metadata: NftMetadata = {
         uid: uid.toString(),
         organizationName: values.organizationName,
+        organizationBlockchainWalletAddress: walletAddress as string,
         organizationWebsite: values.organizationWebsite || null,
         organizationAddress: values.organizationAddress || null,
         productName: values.productName,
@@ -117,21 +115,18 @@ const ProductForm: FC = () => {
 
       const appFeesInMatic = await getAppFeesInMatic(chain?.id);
 
-      console.log("uid", uid.toDisplayFormat());
-
-      contractWrite.writeAsync({
+      await contractWrite.writeAsync({
         args: [uid.toHexString(), metadataUri],
         overrides: { value: ethers.utils.parseEther(String(appFeesInMatic)) },
       });
-      // show modal with spinner
-    } catch (e: any) {
-      openNotificationWithIcon("error", "Form Submission Error", e.message);
+    } catch (err) {
+      showErrorNotification("Form Submission Error", err as Error);
+      dismissModal();
     }
   };
 
   const handleMintSuccess = async (tx: ethers.providers.TransactionResponse) => {
     await tx.wait(chainConfig.blockConfirmations);
-    console.log("mintSuccess");
 
     const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
 
@@ -139,44 +134,22 @@ const ProductForm: FC = () => {
 
     events.forEach((event) => {
       if (event.transactionHash === tx.hash) {
-        console.log("event", event.args.nftUid, event.args.nftUri);
-        setIsModalVisible(true);
-        setIsLoadingNftRecord(true);
-        setUid(Uid.parse(event.args.nftUid));
+        launchModalWithUid(Uid.parse(event.args.nftUid));
       }
     });
+
+    form.resetFields();
   };
 
   return (
-    <Space direction="vertical">
-      <Alert
-        type="info"
-        description={
-          <Space direction="vertical">
-            <Text>
-              Submit information about your physical product to register it on the Polygon public
-              blockchain and generate a digital certificate.
-            </Text>
-            <Text>
-              <strong>
-                For each form submission, the app charges $1 fee in Polygon's MATIC token.
-              </strong>
-              Ensure your wallet has enough to cover app fees ($1) and blockchain transaction fees
-              ($0.10 - $0.50)
-            </Text>
-            <Text strong>
-              Note: All submitted information will be made public so refrain from posting anything
-              sensitive.
-            </Text>
-          </Space>
-        }
-      />
+    <>
       <Form
         layout="vertical"
         labelCol={{ span: 24 }}
         wrapperCol={{ span: 24 }}
         name="form"
         onFinish={handleFormSubmit}
+        form={form}
         css={css`
           display: flex;
           flex-direction: column;
@@ -252,8 +225,16 @@ const ProductForm: FC = () => {
           <Button>Next</Button>
         </Document>
         <Form.Item>
-          <Button type="primary" size="large" htmlType="submit" disabled={!isWalletConnected}>
-            Submit
+          <Button
+            type="primary"
+            size="large"
+            htmlType="submit"
+            disabled={!isWalletConnected}
+            css={css`
+              width: 100%;
+            `}
+          >
+            Submit Product Form
           </Button>
         </Form.Item>
       </Form>
@@ -265,7 +246,7 @@ const ProductForm: FC = () => {
         isLoadingRecord={isLoadingNftRecord}
         onFinishLoadingRecord={handleFinishLoadingNftRecord}
       />
-    </Space>
+    </>
   );
 };
 

@@ -5,17 +5,14 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 
 import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultWallets, RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit";
-import { chain, configureChains, createClient, useNetwork, WagmiConfig } from "wagmi";
-import { alchemyProvider } from "wagmi/providers/alchemy";
+import { getDefaultWallets, lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 
 import { ConfigProvider } from "antd";
+import React from "react";
 import { PRIMARY_COLOR } from "../utils/constants";
-import React, { FC, PropsWithChildren } from "react";
-import contractsConfig from "../utils/contractsConfig.json";
 import AppStateContainer from "../components/AppStateContainer";
-import { infuraProvider } from "wagmi/providers/infura";
 
 ConfigProvider.config({
   theme: {

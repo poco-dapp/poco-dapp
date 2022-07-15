@@ -1,32 +1,34 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { PRIMARY_COLOR } from "../utils/constants";
 
-import { css, jsx } from "@emotion/react";
+import { css } from "@emotion/react";
 import { message, Tag, Typography } from "antd";
 import Search from "antd/lib/input/Search";
 import { Header } from "antd/lib/layout/layout";
 import NftRecordModal from "./NftRecordModal";
 import { Uid } from "../utils/uid-generator";
-import { useProvider } from "wagmi";
+import { PRIMARY_COLOR } from "../utils/constants";
+import { useNftRecordModal } from "../utils/custom-hooks";
 
 const { Title } = Typography;
 
 const Navbar: FC = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isLoadingNftRecord, setIsLoadingNftRecord] = useState(false);
-  const [uid, setUid] = useState<Uid | null>(null);
+  const {
+    uid,
+    isModalVisible,
+    isLoadingNftRecord,
+    handleOk,
+    handleCancel,
+    handleFinishLoadingNftRecord,
+    launchModalWithUid,
+  } = useNftRecordModal();
 
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleFinishLoadingNftRecord = () => {
-    setIsLoadingNftRecord(false);
+  const handleSearch = (searchTerm: string) => {
+    if (!Uid.isValid(searchTerm)) {
+      message.error("Invalid UID for search");
+      return;
+    }
+    launchModalWithUid(Uid.parse(searchTerm));
   };
 
   return (
@@ -52,20 +54,12 @@ const Navbar: FC = () => {
         </span>
       </Title>
       <Search
-        placeholder="Product's digital certificate UID, eg. POCO://01-5848ACB-7CBC-4ABA-B6AC-DD755DB0593F"
+        placeholder="Product's digital certificate UID, eg. 01-5848ACB-7CBC-4ABA-B6AC-DD755DB0593F"
         allowClear
         enterButton="Search"
         size="large"
         style={{ width: 600 }}
-        onSearch={(searchTerm) => {
-          if (!Uid.isValid(searchTerm)) {
-            message.error("Invalid UID for search");
-            return;
-          }
-          setIsModalVisible(true);
-          setIsLoadingNftRecord(true);
-          setUid(Uid.parse(searchTerm));
-        }}
+        onSearch={handleSearch}
         css={css`
           &.ant-input-group-wrapper-lg .ant-input-group .ant-input-affix-wrapper-lg {
             border-top-left-radius: 10px;

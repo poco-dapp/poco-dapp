@@ -1,11 +1,13 @@
 import React, { FC, PropsWithChildren } from "react";
 import { useNetwork } from "wagmi";
-import contractsConfig from "../utils/contractsConfig.json";
+import unTypedContractsConfig from "../utils/contractsConfig.json";
 
 interface ChainConfig {
   address: string;
   blockConfirmations: number;
 }
+
+const contractsConfig: { [id: string]: ChainConfig } = unTypedContractsConfig;
 
 const DEFAULT_CHAIN_CONFIG: ChainConfig = contractsConfig["31337"]; // TODO: use env var to selectively configure chains and contract addresses
 
