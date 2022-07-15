@@ -7,10 +7,10 @@ import { ChainConfigContext } from "./AppStateContainer";
 import { useContract, useContractRead, useProvider } from "wagmi";
 import abi from "../utils/abi.json";
 import { Result } from "ethers/lib/utils";
-import { getMetaDataFromIpfs, NftMetadata } from "../utils/ipfs-helper";
+import { downloadFileFromIpfs, getMetaDataFromIpfs, NftMetadata } from "../utils/ipfs-helper";
 import JsBarcode from "jsbarcode";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
-import { downloadFile } from "../utils/download-helper";
+import { downloadFileUsingDataUri } from "../utils/download-helper";
 
 const { Text, Title } = Typography;
 
@@ -37,6 +37,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   const qrcodeCanvasRef = useRef(null);
 
   const [nftMetadata, setNftMetadata] = useState<NftMetadata | null>(null);
+  const [downloadDocumentInProgress, setDownloadDocumentInProgress] = useState(false);
 
   const pocoNftContract = useContract({
     addressOrName: chainConfig.address,
@@ -64,7 +65,13 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const handleDownloadQRCode = () => {
     const canvas: any = document.querySelector(".qrCode > canvas");
-    downloadFile(canvas.toDataURL(), `qrcode_${uid?.toDisplayFormat()}.png`);
+    downloadFileUsingDataUri(canvas.toDataURL(), `qrcode_${uid?.toDisplayFormat()}.png`);
+  };
+
+  const handleDownloadDocument = async () => {
+    setDownloadDocumentInProgress(true);
+    await downloadFileFromIpfs(nftMetadata!.documentUri!, `document_${uid!.toDisplayFormat()}`);
+    setDownloadDocumentInProgress(false);
   };
 
   return (
@@ -142,14 +149,15 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
                 {nftMetadata?.productDescription}
               </Descriptions.Item>
               <Descriptions.Item label="Document">
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    console.log(nftMetadata?.documentUri);
-                  }}
-                >
-                  Download
-                </Button>
+                {nftMetadata?.documentUri && (
+                  <Button
+                    type="primary"
+                    onClick={handleDownloadDocument}
+                    loading={downloadDocumentInProgress}
+                  >
+                    Download Document
+                  </Button>
+                )}
               </Descriptions.Item>
             </Descriptions>
             <Space

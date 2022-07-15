@@ -34,16 +34,18 @@ import { ethers } from "ethers";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
+const { Text } = Typography;
+
 const ProductForm: FC = () => {
   const [numPages, setNumPages] = useState(0);
   const [file, setFile] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoadingNftRecord, setIsLoadingNftRecord] = useState(false);
   const [uid, setUid] = useState<Uid | null>(null);
-  const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
   const chainConfig = useContext(ChainConfigContext);
+  const { address: walletAddress } = useAccount();
 
   const isWalletConnected = useWalletConnection();
 
@@ -131,7 +133,7 @@ const ProductForm: FC = () => {
     await tx.wait(chainConfig.blockConfirmations);
     console.log("mintSuccess");
 
-    const nftMintedEventFilter = pocoNftContract.filters.NftMinted();
+    const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
 
     const events = await pocoNftContract.queryFilter(nftMintedEventFilter, "latest");
 
@@ -146,7 +148,29 @@ const ProductForm: FC = () => {
   };
 
   return (
-    <>
+    <Space direction="vertical">
+      <Alert
+        type="info"
+        description={
+          <Space direction="vertical">
+            <Text>
+              Submit information about your physical product to register it on the Polygon public
+              blockchain and generate a digital certificate.
+            </Text>
+            <Text>
+              <strong>
+                For each form submission, the app charges $1 fee in Polygon's MATIC token.
+              </strong>
+              Ensure your wallet has enough to cover app fees ($1) and blockchain transaction fees
+              ($0.10 - $0.50)
+            </Text>
+            <Text strong>
+              Note: All submitted information will be made public so refrain from posting anything
+              sensitive.
+            </Text>
+          </Space>
+        }
+      />
       <Form
         layout="vertical"
         labelCol={{ span: 24 }}
@@ -190,7 +214,14 @@ const ProductForm: FC = () => {
         </Form.Item>
         <Form.Item
           name="fileToUpload"
-          label="Upload"
+          label={
+            <Space direction="vertical">
+              <Text>Upload Product Document</Text>
+              <Text type="secondary">
+                (Certificate of Authenticity / Compliance / Inspection, etc.)
+              </Text>
+            </Space>
+          }
           valuePropName="fileList"
           getValueFromEvent={normFile}
         >
@@ -234,7 +265,7 @@ const ProductForm: FC = () => {
         isLoadingRecord={isLoadingNftRecord}
         onFinishLoadingRecord={handleFinishLoadingNftRecord}
       />
-    </>
+    </Space>
   );
 };
 

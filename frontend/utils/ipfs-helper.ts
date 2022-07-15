@@ -1,6 +1,9 @@
 import { create } from "ipfs-http-client";
 import toBuffer = require("it-to-buffer");
+import toStream = require("it-to-browser-readablestream");
 import { toString } from "uint8arrays/to-string";
+import { downloadFileUsingBytes, downloadFileUsingDataUri } from "./download-helper";
+import filetypemime from "magic-bytes.js";
 
 const IPFS_URI_PREFIX = "ipfs://";
 
@@ -35,12 +38,23 @@ export async function uploadFileToIpfs(file: File): Promise<string> {
 }
 
 export async function getMetaDataFromIpfs(ipfsCid: string): Promise<NftMetadata> {
-  const normalizedCid = ipfsCid.replace("ipfs://", "");
-  const uint8arr = await toBuffer(client.cat(normalizedCid));
-  const result = JSON.parse(toString(uint8arr));
+  const file = await getFileFromIpfs(ipfsCid);
+  const result = JSON.parse(toString(file));
   return result;
 }
 
 export function generateIpfsHttpLink(ipfsCid: string): string {
   return `${ipfsCid}.${IPFS_PUBLIC_HTPP_GATEWAY}`;
+}
+
+export async function downloadFileFromIpfs(ipfsCid: string, name: string): Promise<void> {
+  const uint8array = await getFileFromIpfs(ipfsCid);
+  const mimeFileTypeObj = filetypemime(uint8array)[0];
+  const fileExtension = mimeFileTypeObj.extension;
+  downloadFileUsingBytes(uint8array, mimeFileTypeObj.mime, `${name}.${fileExtension}`);
+}
+
+async function getFileFromIpfs(ipfsCid: string): Promise<Uint8Array> {
+  const normalizedCid = ipfsCid.replace("ipfs://", "");
+  return toBuffer(client.cat(normalizedCid));
 }

@@ -3431,6 +3431,11 @@ it-stream-types@^1.0.4:
   resolved "https://registry.yarnpkg.com/it-stream-types/-/it-stream-types-1.0.4.tgz#6e66a11abfd98abab4894c30da15829a0a56bb43"
   integrity sha512-0F3CqTIcIHwtnmIgqd03a7sw8BegAmE32N2w7anIGdALea4oAN4ltqPgDMZ7zn4XPLZifXEZlBXSzgg64L1Ebw==
 
+it-to-browser-readablestream@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/it-to-browser-readablestream/-/it-to-browser-readablestream-1.0.4.tgz#401f0f73e50abcf318f1bf8343972ba9f86bdae0"
+  integrity sha512-Fv4ezGpnJgY32waRsKoAup/Ybd6zo7yZndHQfI9XB0JGLnzdi3dIoy7MRpZih+Ryik+Qy2BJM169bWJVtV6d7Q==
+
 it-to-buffer@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/it-to-buffer/-/it-to-buffer-2.0.2.tgz#229942b97978e683d2eaaf73320f88101885d0a6"
@@ -3661,6 +3666,11 @@ lru-cache@^6.0.0:
   integrity sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==
   dependencies:
     yallist "^4.0.0"
+
+magic-bytes.js@^1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/magic-bytes.js/-/magic-bytes.js-1.0.12.tgz#6287de1070f4c33da4a6e8bffb2752d513a2d287"
+  integrity sha512-Rkukya32FnY3dF5nJeAS4Qcry76tXeOe2sXIQGAt969sV04QLormWHXmHn4o/yIbb4wRlnCqWu8fpVg3TU7sFg==
 
 make-cancellable-promise@^1.0.0:
   version "1.1.0"

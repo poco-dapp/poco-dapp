@@ -20,7 +20,7 @@ export class Uid {
 
   static parse(value: string): Uid {
     if (!this.isValid(value)) {
-      throw new Error("Invalid UID");
+      throw new Error("Invalid UID: ", value);
     }
 
     const removeDashes = value.replace(/-/g, "");

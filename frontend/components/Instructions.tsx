@@ -93,7 +93,7 @@ const Instructions: FC = () => {
         <Step
           status="process"
           title="Use UID to view submitted product information"
-          description="A user/customer can then use the UID to view the product information with any associated certificate of ownership, authenticity, compliance etc."
+          description="A user/customer can then use the UID to view the product information with any associated certificate of authenticity, compliance, inspection etc."
         />
       </Steps>
     </div>

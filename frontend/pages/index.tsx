@@ -34,27 +34,86 @@ import {
   useContractEvent,
   useContract,
   useProvider,
+  useContractRead,
 } from "wagmi";
 import { NftMetadata, uploadFileToIpfs, uploadMetaDataToIpfs } from "../utils/ipfs-helper";
 import { openNotificationWithIcon } from "../utils/notification-helper";
 import { Uid } from "../utils/uid-generator";
 
-import abi from "../utils/abi.json";
 import { Contract, ethers } from "ethers";
 import { getAppFeesInMatic } from "../utils/app-fees-helper";
 import ProductForm from "../components/ProductForm";
 import Instructions from "../components/Instructions";
-import NftRecordList from "../components/NftRecordList";
+import NftRecordList, { LogEvent } from "../components/NftRecordList";
 import Navbar from "../components/Navbar";
 import { ChainConfigContext } from "../components/AppStateContainer";
 import useWalletConnection from "../utils/custom-hooks";
+import abi from "../utils/abi.json";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Search } = Input;
 
 const Home: NextPage = () => {
-  const [nftRecordList, setNftRecordList] = useState([]);
+  const [logEvents, setLogEvents] = useState<LogEvent[]>([]);
   const isWalletConnected = useWalletConnection();
+  const chainConfig = useContext(ChainConfigContext);
+  const provider = useProvider();
+  const { address: walletAddress } = useAccount();
+
+  const pocoNftContract = useContract({
+    addressOrName: chainConfig?.address,
+    contractInterface: abi,
+    signerOrProvider: provider,
+  });
+
+  useEffect(() => {
+    if (isWalletConnected) {
+      setLogEvents([]);
+      getAllNftsMintedAndSubscribe();
+    }
+
+    return () => {
+      unsubscribeAllEvents();
+    };
+  }, [isWalletConnected, walletAddress]);
+
+  const getAllNftsMintedAndSubscribe = async () => {
+    const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
+
+    const events = await pocoNftContract.queryFilter(nftMintedEventFilter, "earliest", "latest");
+
+    const logEvents = await Promise.all(
+      events.map(async (event) => {
+        const block = await provider.getBlock(event.blockNumber);
+        return {
+          event,
+          block,
+        };
+      })
+    );
+
+    setLogEvents([...logEvents.reverse()]);
+
+    const latestBlockNumber = await provider.getBlockNumber();
+
+    provider.once("block", () => {
+      pocoNftContract.on(nftMintedEventFilter, async (minter, nftUid, nftUri, event) => {
+        if (event.blockNumber <= latestBlockNumber) {
+          // Ignore old blocks;
+          return;
+        }
+
+        const block = await provider.getBlock(event.blockNumber);
+
+        setLogEvents((oldLogEvents) => [{ event, block }, ...oldLogEvents]);
+      });
+    });
+  };
+
+  const unsubscribeAllEvents = () => {
+    provider.removeAllListeners();
+    pocoNftContract.removeAllListeners();
+  };
 
   return (
     <div>
@@ -69,29 +128,11 @@ const Home: NextPage = () => {
             <Instructions />
           </Col>
           <Col span={6}>
-            <Space direction="vertical">
-              <Alert
-                type="info"
-                description={
-                  <Space direction="vertical">
-                    <div>
-                      Submit information about your physical product to register it on the Polygon
-                      public blockchain
-                    </div>
-                    <div>
-                      For each form submission, the app charges $1 fee in Polygon's MATIC token so
-                      ensure your wallet has enough to cover app fees ($1) and blockchain
-                      transaction fees ($0.10 - $0.50)
-                    </div>
-                  </Space>
-                }
-              />
-              <ProductForm />
-            </Space>
+            <ProductForm />
           </Col>
-          {isWalletConnected && nftRecordList.length > 0 && (
-            <Col span={4}>
-              <NftRecordList />
+          {isWalletConnected && logEvents.length > 0 && (
+            <Col span={6}>
+              <NftRecordList logEvents={logEvents} />
             </Col>
           )}
         </Row>
