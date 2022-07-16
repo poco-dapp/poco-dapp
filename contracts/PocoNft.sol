@@ -13,7 +13,9 @@ contract PocoNft is Ownable, ERC721URIStorage {
   using Counters for Counters.Counter;
   using PriceConverter for uint256;
 
-  uint256 public immutable mintFeeCents;
+  bool public isMintEnabled;
+  uint32 public mintFeeMicroCents;
+  uint32 public mintFeeRangeLimitPercent;
   AggregatorV3Interface public priceFeed;
 
   mapping(bytes17 => uint256) private nftUidToId;
@@ -29,17 +31,29 @@ contract PocoNft is Ownable, ERC721URIStorage {
     _;
   }
 
-  constructor(uint256 _mintFeeCents, address _priceFeed) Ownable() ERC721("PocoNFT", "POCO") {
-    mintFeeCents = _mintFeeCents;
+  constructor(
+    bool _isMintEnabled,
+    uint32 _mintFeeMicroCents,
+    uint32 _mintFeeRangeLimitPercent,
+    address _priceFeed
+  ) Ownable() ERC721("PocoNFT", "POCO") {
+    isMintEnabled = _isMintEnabled;
+    mintFeeMicroCents = _mintFeeMicroCents;
+    mintFeeRangeLimitPercent = _mintFeeRangeLimitPercent;
     priceFeed = AggregatorV3Interface(_priceFeed);
   }
 
   function mintNft(bytes17 _nftUid, string memory _nftUri) public payable {
-    uint256 ethAmountInCents = msg.value.getConversionRateCents(priceFeed);
+    require(isMintEnabled, "Minting has been disabled.");
+
+    uint256 ethAmountInMicroCents = msg.value.getConversionRateMicroCents(priceFeed);
+    uint32 mintFeeRangeLimit = (mintFeeMicroCents * mintFeeRangeLimitPercent) / 100;
     require(
-      ethAmountInCents >= mintFeeCents - 10 && ethAmountInCents < mintFeeCents + 10,
+      ethAmountInMicroCents >= mintFeeMicroCents - mintFeeRangeLimit &&
+        ethAmountInMicroCents < mintFeeMicroCents + mintFeeRangeLimit,
       "Unexpected mint fee."
     );
+
     require(bytes(_nftUri).length != 0, "Nft URI needs to be valid.");
     require(nftUidToId[_nftUid] == 0, "NFT with provided UID already exists.");
 
@@ -72,5 +86,17 @@ contract PocoNft is Ownable, ERC721URIStorage {
     uint256 nftId = nftUidToId[_nftUid];
     require(nftId != 0, "UID does not exist.");
     return nftId;
+  }
+
+  function setIsMintEnabled(bool _isMintEnabled) external onlyOwner {
+    isMintEnabled = _isMintEnabled;
+  }
+
+  function setMintFeeMicroCents(uint32 _mintFeeMicroCents) external onlyOwner {
+    mintFeeMicroCents = _mintFeeMicroCents;
+  }
+
+  function setMintFeeRangeLimitPercent(uint32 _mintFeeRangeLimitPercent) external onlyOwner {
+    mintFeeRangeLimitPercent = _mintFeeRangeLimitPercent;
   }
 }
