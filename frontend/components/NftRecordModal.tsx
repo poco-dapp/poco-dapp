@@ -1,20 +1,18 @@
 import React, { FC, useContext, useEffect, useRef, useState } from "react";
 
-import { Button, Modal, Space, Spin, Statisti, Typography, Descriptions, Divider } from "antd";
-import { Uid } from "../utils/uid-generator";
-import { css, jsx } from "@emotion/react";
-import { ChainConfigContext } from "./AppStateContainer";
-import { useContract, useContractRead, useProvider } from "wagmi";
-import abi from "../utils/abi.json";
-import { Result } from "ethers/lib/utils";
-import { downloadFileFromIpfs, getMetaDataFromIpfs, NftMetadata } from "../utils/ipfs-helper";
+import { Button, Modal, Space, Spin, Typography, Descriptions, Divider } from "antd";
+import { css } from "@emotion/react";
+import { useContract, useProvider } from "wagmi";
 import JsBarcode from "jsbarcode";
-import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
+import { ChainConfigContext } from "./AppStateContainer";
+import { downloadFileFromIpfs, getMetaDataFromIpfs, NftMetadata } from "../utils/ipfs-helper";
+import abi from "../utils/abi.json";
+import { Uid } from "../utils/uid-generator";
 import { downloadFileUsingDataUri } from "../utils/download-helper";
-import { openNotificationWithIcon } from "../utils/notification-helper";
 import { showErrorNotification } from "../utils/error-helper";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface NftRecordModalProps {
   isModalVisible: boolean;
@@ -35,8 +33,8 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 }) => {
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
-  const barcodeImgRef = useRef(null);
-  const qrcodeCanvasRef = useRef(null);
+  const barcodeImgRef = useRef<HTMLImageElement | null>(null);
+  const qrcodeCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [nftMetadata, setNftMetadata] = useState<NftMetadata | null>(null);
   const [downloadDocumentInProgress, setDownloadDocumentInProgress] = useState(false);
@@ -72,13 +70,17 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   };
 
   const handleDownloadQRCode = () => {
-    const canvas: any = document.querySelector(".qrCode > canvas");
-    downloadFileUsingDataUri(canvas.toDataURL(), `qrcode_${uid?.toDisplayFormat()}.png`);
+    const canvas: HTMLCanvasElement | null = document.querySelector(".qrCode > canvas");
+    if (canvas) {
+      downloadFileUsingDataUri(canvas.toDataURL(), `qrcode_${uid?.toDisplayFormat()}.png`);
+    }
   };
 
   const handleDownloadDocument = async () => {
     setDownloadDocumentInProgress(true);
-    await downloadFileFromIpfs(nftMetadata!.documentUri!, `document_${uid!.toDisplayFormat()}`);
+    if (nftMetadata?.documentUri && uid) {
+      await downloadFileFromIpfs(nftMetadata.documentUri, `document_${uid.toDisplayFormat()}`);
+    }
     setDownloadDocumentInProgress(false);
   };
 
@@ -186,7 +188,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
                 >
                   Download Barcode (CODE128)
                 </a>
-                <img id="barcode" ref={barcodeImgRef} />
+                <img alt="barcode" id="barcode" ref={barcodeImgRef} />
               </div>
               <div>
                 <div>

@@ -1,36 +1,18 @@
-import React, { FC, useContext, useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  Menu,
-  MenuProps,
-  Row,
-  Input,
-  Space,
-  Form,
-  InputNumber,
-  Upload,
-  UploadFile,
-  Typography,
-  Steps,
-  List,
-  Alert,
-  Tag,
-} from "antd";
-import { css, jsx } from "@emotion/react";
+import React, { FC, useContext, useState } from "react";
+import { Button, Input, Space, Form, Upload, Typography } from "antd";
+import { css } from "@emotion/react";
 import TextArea from "antd/lib/input/TextArea";
 import { UploadOutlined } from "@ant-design/icons";
 import { Document, Page, pdfjs } from "react-pdf";
+import { useAccount, useContract, useContractWrite, useNetwork, useProvider } from "wagmi";
+import { ethers } from "ethers";
 import NftRecordModal from "./NftRecordModal";
+import { ChainConfigContext } from "./AppStateContainer";
 import { NftMetadata, uploadFileToIpfs, uploadMetaDataToIpfs } from "../utils/ipfs-helper";
 import { Uid } from "../utils/uid-generator";
 import { getAppFeesInMatic } from "../utils/app-fees-helper";
-import { openNotificationWithIcon } from "../utils/notification-helper";
-import { useAccount, useContract, useContractWrite, useNetwork, useProvider } from "wagmi";
-import { ChainConfigContext } from "./AppStateContainer";
 import abi from "../utils/abi.json";
 import { useNftRecordModal, useWalletConnection } from "../utils/custom-hooks";
-import { ethers } from "ethers";
 import { showErrorNotification } from "../utils/error-helper";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;

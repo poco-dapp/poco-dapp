@@ -2,12 +2,12 @@ import { css } from "@emotion/react";
 import { Button, List, Space, Typography } from "antd";
 import * as ethers from "ethers";
 import moment from "moment";
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
+import NftRecordModal from "./NftRecordModal";
 import { useNftRecordModal } from "../utils/custom-hooks";
 import { Uid } from "../utils/uid-generator";
-import NftRecordModal from "./NftRecordModal";
 
-const { Text, Title, Link } = Typography;
+const { Text, Title } = Typography;
 
 export interface NftRecordListProps {
   logEvents: LogEvent[];
@@ -22,8 +22,13 @@ const ListItem: FC<{ logEvent: LogEvent; onNftUidClick: (uid: Uid) => void }> = 
   onNftUidClick,
 }) => {
   const localTime = moment.unix(logEvent.block.timestamp).local().format("MMM DD, YY - hh:mm A");
-  const uid = Uid.parse(logEvent.event.args.nftUid);
-  const uidForDisplay = uid.toDisplayFormat();
+
+  let uidForDisplay;
+  let uid: Uid;
+  if (logEvent.event.args) {
+    uid = Uid.parse(logEvent.event.args.nftUid);
+    uidForDisplay = uid.toDisplayFormat();
+  }
 
   return (
     <List.Item>
@@ -76,7 +81,7 @@ const NftRecordList: FC<NftRecordListProps> = ({ logEvents }) => {
         )}
       />
       <NftRecordModal
-        uid={uid!}
+        uid={uid}
         isModalVisible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}

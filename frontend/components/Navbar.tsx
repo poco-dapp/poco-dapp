@@ -73,7 +73,7 @@ const Navbar: FC = () => {
       />
       <ConnectButton />
       <NftRecordModal
-        uid={uid!}
+        uid={uid}
         isModalVisible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
