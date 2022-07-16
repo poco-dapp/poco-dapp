@@ -6,12 +6,12 @@ import Head from "next/head";
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { Chain, chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 
 import { ConfigProvider } from "antd";
 import React from "react";
-import { PRIMARY_COLOR } from "../utils/constants";
+import { ENV_DEVELOPMENT, PRIMARY_COLOR } from "../utils/constants";
 import AppStateContainer from "../components/AppStateContainer";
 
 ConfigProvider.config({
@@ -20,19 +20,17 @@ ConfigProvider.config({
   },
 });
 
-/**
- * TODO:
- * - Order of chains matter, will choose the first chain as default to connect to for the wallet
- * - publicProvider is also dependent on the chain
- * - use env var to selectively configure chains and contract addresses
- */
-const { chains, provider } = configureChains(
-  [chain.hardhat, chain.polygonMumbai],
-  [publicProvider()]
-);
+let chainsEnabled: Chain[];
+if (process.env.NEXT_PUBLIC_ENV === ENV_DEVELOPMENT) {
+  chainsEnabled = [chain.polygonMumbai, chain.hardhat];
+} else {
+  chainsEnabled = [chain.hardhat, chain.polygonMumbai];
+}
+
+const { chains, provider } = configureChains(chainsEnabled, [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
-  appName: "Poco",
+  appName: "POCO",
   chains,
 });
 

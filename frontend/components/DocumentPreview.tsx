@@ -10,6 +10,7 @@ interface DocumentPreviewProps {
 
 const DocumentPreview: FC<DocumentPreviewProps> = ({ file }) => {
   const [imageUri, setImageUri] = useState<string>("");
+  const [pdfError, setPdfError] = useState("");
 
   useEffect(() => {
     if (file && file?.type !== FILE_TYPE_PDF) {
@@ -20,32 +21,45 @@ const DocumentPreview: FC<DocumentPreviewProps> = ({ file }) => {
   return (
     <>
       {file && (
-        <div
-          css={css`
-            border-width: 1px;
-            border-color: black;
-            border-style: solid;
-            padding: 4px;
-          `}
-        >
-          {file.type === FILE_TYPE_PDF ? (
-            <Document
-              file={file}
-              noData=""
-              error=""
-              onLoadError={(err) => {
-                console.log(err);
-                if (err.name === "InvalidPDFException") {
-                  console.log("Invalid PDF");
-                }
-              }}
-            >
-              <Page pageNumber={1} height={500} />
-            </Document>
-          ) : (
-            <Image src={imageUri} alt="Document Image" width="100%" />
-          )}
-        </div>
+        <>
+          <div
+            css={css`
+              background-color: black;
+              color: white;
+              text-align: center;
+              border-width: 1px;
+              border-color: black;
+              border-style: solid;
+            `}
+          >
+            Preview
+          </div>
+          <div
+            css={css`
+              border-width: 1px;
+              border-color: black;
+              border-style: solid;
+              padding: 4px;
+            `}
+          >
+            {file.type === FILE_TYPE_PDF ? (
+              <Document
+                file={file}
+                noData=""
+                error={pdfError}
+                onLoadError={(err) => {
+                  if (err.name === "InvalidPDFException") {
+                    setPdfError("PDF failed to load for preview. PDF maybe invalid.");
+                  }
+                }}
+              >
+                <Page pageNumber={1} height={500} />
+              </Document>
+            ) : (
+              <Image src={imageUri} alt="Document Image" width="100%" />
+            )}
+          </div>
+        </>
       )}
     </>
   );

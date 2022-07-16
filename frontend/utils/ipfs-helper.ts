@@ -1,9 +1,8 @@
 import { create } from "ipfs-http-client";
 import toBuffer = require("it-to-buffer");
-import toStream = require("it-to-browser-readablestream");
 import { toString } from "uint8arrays/to-string";
-import { downloadFileUsingBytes, downloadFileUsingDataUri } from "./download-helper";
 import filetypemime from "magic-bytes.js";
+import { downloadFileUsingBytes } from "./download-helper";
 
 const IPFS_URI_PREFIX = "ipfs://";
 
@@ -52,7 +51,10 @@ export async function downloadFileFromIpfs(ipfsCid: string, name: string): Promi
   const uint8array = await getFileFromIpfs(ipfsCid);
   const mimeFileTypeObj = filetypemime(uint8array)[0];
   const fileExtension = mimeFileTypeObj.extension;
-  downloadFileUsingBytes(uint8array, mimeFileTypeObj.mime, `${name}.${fileExtension}`);
+
+  if (mimeFileTypeObj.mime) {
+    downloadFileUsingBytes(uint8array, mimeFileTypeObj.mime, `${name}.${fileExtension}`);
+  }
 }
 
 async function getFileFromIpfs(ipfsCid: string): Promise<Uint8Array> {

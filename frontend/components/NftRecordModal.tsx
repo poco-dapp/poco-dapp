@@ -2,7 +2,7 @@ import React, { FC, useContext, useEffect, useRef, useState } from "react";
 
 import { Button, Modal, Space, Spin, Typography, Descriptions, Divider } from "antd";
 import { css } from "@emotion/react";
-import { useContract, useProvider } from "wagmi";
+import { useContract, useNetwork, useProvider } from "wagmi";
 import JsBarcode from "jsbarcode";
 import { QRCodeCanvas } from "qrcode.react";
 import { ChainConfigContext } from "./AppStateContainer";
@@ -33,6 +33,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 }) => {
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
+  const { chain } = useNetwork();
   const barcodeImgRef = useRef<HTMLImageElement | null>(null);
   const qrcodeCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -53,6 +54,9 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const loadNft = async (uid: Uid) => {
     try {
+      if (!chain) {
+        throw new Error("Unable to connect to the blockchain.");
+      }
       setNftMetadata(null);
       const nftUri = await pocoNftContract.getNftUriByUid(uid.toHexString());
       const metadata = await getMetaDataFromIpfs(nftUri);

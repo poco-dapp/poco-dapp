@@ -1,9 +1,9 @@
 import React, { FC, useContext, useState } from "react";
-import { Button, Input, Space, Form, Upload, Typography } from "antd";
+import { Button, Input, Space, Form, Upload, Typography, message } from "antd";
 import { css } from "@emotion/react";
 import TextArea from "antd/lib/input/TextArea";
 import { UploadOutlined } from "@ant-design/icons";
-import { Document, Page, pdfjs } from "react-pdf";
+import { pdfjs } from "react-pdf";
 import { useAccount, useContract, useContractWrite, useNetwork, useProvider } from "wagmi";
 import { ethers } from "ethers";
 import NftRecordModal from "./NftRecordModal";
@@ -15,7 +15,7 @@ import { getAppFeesInMatic } from "../utils/app-fees-helper";
 import abi from "../utils/abi.json";
 import { useNftRecordModal, useWalletConnection } from "../utils/custom-hooks";
 import { showErrorNotification } from "../utils/error-helper";
-import { convertFileToBase64, isValidFile } from "../utils/file-helper";
+import { isValidFile } from "../utils/file-helper";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -80,12 +80,14 @@ const ProductForm: FC = () => {
       };
       const metadataUri = await uploadMetaDataToIpfs(metadata);
 
-      const appFeesInMatic = await getAppFeesInMatic(chain?.id);
+      if (chain) {
+        const appFeesInMatic = await getAppFeesInMatic(chain.id);
 
-      await contractWrite.writeAsync({
-        args: [uid.toHexString(), metadataUri],
-        overrides: { value: ethers.utils.parseEther(String(appFeesInMatic)) },
-      });
+        await contractWrite.writeAsync({
+          args: [uid.toHexString(), metadataUri],
+          overrides: { value: ethers.utils.parseEther(String(appFeesInMatic)) },
+        });
+      }
     } catch (err) {
       showErrorNotification("Form Submission Error", err as Error);
       dismissModal();
@@ -99,8 +101,8 @@ const ProductForm: FC = () => {
 
     const events = await pocoNftContract.queryFilter(nftMintedEventFilter, "latest");
 
-    events.forEach((event) => {
-      if (event.transactionHash === tx.hash) {
+    events.forEach((event: ethers.Event) => {
+      if (event.transactionHash === tx.hash && event.args) {
         launchModalWithUid(Uid.parse(event.args.nftUid));
       }
     });
@@ -110,11 +112,25 @@ const ProductForm: FC = () => {
 
   const handleFileBeforeUpload = (file: File) => {
     if (isValidFile(file)) {
-      //(async () => setFile(await convertFileToBase64(file)))();
       setPreviewFile(file);
+    } else {
+      message.error("Invalid File. Only JPG, PNG and PDF types allowed and must be less than 5MB.");
+      setPreviewFile(undefined);
     }
 
     return false;
+  };
+
+  const normFile = (e: { file: File; fileList: File[] }) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+
+    if (!isValidFile(e.fileList[0])) {
+      return [];
+    }
+
+    return e.fileList;
   };
 
   return (
@@ -163,6 +179,8 @@ const ProductForm: FC = () => {
         </Form.Item>
         <Form.Item
           name="fileToUpload"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
           label={
             <Space direction="vertical">
               <Text>Upload Product Document</Text>
@@ -205,7 +223,7 @@ const ProductForm: FC = () => {
             disabled={!isWalletConnected}
             css={css`
               width: 100%;
-              margin-top: 8px;
+              margin-top: 24px;
             `}
           >
             Submit Product Form
