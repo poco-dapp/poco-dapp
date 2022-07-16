@@ -8,20 +8,21 @@ import { useAccount, useContract, useContractWrite, useNetwork, useProvider } fr
 import { ethers } from "ethers";
 import NftRecordModal from "./NftRecordModal";
 import { ChainConfigContext } from "./AppStateContainer";
+import DocumentPreview from "./DocumentPreview";
 import { NftMetadata, uploadFileToIpfs, uploadMetaDataToIpfs } from "../utils/ipfs-helper";
 import { Uid } from "../utils/uid-generator";
 import { getAppFeesInMatic } from "../utils/app-fees-helper";
 import abi from "../utils/abi.json";
 import { useNftRecordModal, useWalletConnection } from "../utils/custom-hooks";
 import { showErrorNotification } from "../utils/error-helper";
+import { convertFileToBase64, isValidFile } from "../utils/file-helper";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const { Text } = Typography;
 
 const ProductForm: FC = () => {
-  const [numPages, setNumPages] = useState(0);
-  const [file, setFile] = useState(null);
+  const [previewFile, setPreviewFile] = useState<File | undefined>();
   const { chain } = useNetwork();
   const provider = useProvider();
   const chainConfig = useContext(ChainConfigContext);
@@ -55,22 +56,6 @@ const ProductForm: FC = () => {
     contractInterface: abi,
     signerOrProvider: provider,
   });
-
-  const normFile = (e: any) => {
-    console.log("Upload event:", e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
-  };
-
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
 
   const handleFormSubmit = async (values: any) => {
     launchModalForProgress();
@@ -121,6 +106,15 @@ const ProductForm: FC = () => {
     });
 
     form.resetFields();
+  };
+
+  const handleFileBeforeUpload = (file: File) => {
+    if (isValidFile(file)) {
+      //(async () => setFile(await convertFileToBase64(file)))();
+      setPreviewFile(file);
+    }
+
+    return false;
   };
 
   return (
@@ -175,37 +169,34 @@ const ProductForm: FC = () => {
               <Text type="secondary">
                 (Certificate of Authenticity / Compliance / Inspection, etc.)
               </Text>
+              <Text type="secondary">Only PNG, JPG, PDF allowed and must be less than 5MB.</Text>
             </Space>
           }
-          valuePropName="fileList"
-          getValueFromEvent={normFile}
         >
           <Upload
             maxCount={1}
-            onRemove={() => setFile(undefined)}
-            beforeUpload={async (file) => {
-              async function setFileAsync() {
-                setFile(await toBase64(file));
-              }
-              setFileAsync();
-              return false;
+            onRemove={() => {
+              setPreviewFile(undefined);
             }}
+            beforeUpload={handleFileBeforeUpload}
+            css={css`
+              & .ant-upload {
+                width: 100%;
+              }
+            `}
           >
-            <Button icon={<UploadOutlined />}>Select File</Button>
+            <Button
+              type="dashed"
+              icon={<UploadOutlined />}
+              css={css`
+                width: 100%;
+              `}
+            >
+              Select File
+            </Button>
           </Upload>
         </Form.Item>
-        <Document
-          file={file}
-          onLoadSuccess={(numPages) => {
-            console.log("numpages", numPages);
-            setNumPages(numPages._pdfInfo.numPages);
-          }}
-        >
-          <Page pageNumber={1} />
-          <Button>Prev</Button>
-          <span>2</span>
-          <Button>Next</Button>
-        </Document>
+        <DocumentPreview file={previewFile} />
         <Form.Item>
           <Button
             type="primary"
@@ -214,6 +205,7 @@ const ProductForm: FC = () => {
             disabled={!isWalletConnected}
             css={css`
               width: 100%;
+              margin-top: 8px;
             `}
           >
             Submit Product Form
@@ -221,7 +213,7 @@ const ProductForm: FC = () => {
         </Form.Item>
       </Form>
       <NftRecordModal
-        uid={uid!}
+        uid={uid}
         isModalVisible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
