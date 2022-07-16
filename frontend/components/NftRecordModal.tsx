@@ -35,7 +35,6 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   const provider = useProvider();
   const { chain } = useNetwork();
   const barcodeImgRef = useRef<HTMLImageElement | null>(null);
-  const qrcodeCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [nftMetadata, setNftMetadata] = useState<NftMetadata | null>(null);
   const [downloadDocumentInProgress, setDownloadDocumentInProgress] = useState(false);
@@ -207,7 +206,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
                     Download QRCode
                   </Button>
                 </div>
-                <div className="qrCode" ref={qrcodeCanvasRef}>
+                <div className="qrCode">
                   <QRCodeCanvas value={uid.toDisplayFormat()} />,
                 </div>
               </div>

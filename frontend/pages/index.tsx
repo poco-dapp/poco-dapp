@@ -1,5 +1,5 @@
-import { Col, Row } from "antd";
-import { Content } from "antd/lib/layout/layout";
+import { Col, Row, Space } from "antd";
+import { Content, Footer } from "antd/lib/layout/layout";
 import { css } from "@emotion/react";
 import { useContext, useEffect, useState } from "react";
 import type { NextPage } from "next";
@@ -107,6 +107,28 @@ const Home: NextPage = () => {
           )}
         </Row>
       </Content>
+      <Footer>
+        <Space
+          css={css`
+            padding-bottom: 48px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            font-size: 16px;
+          `}
+        >
+          <a href="github">Source code</a>
+          <span>/</span>
+          <a href={`${chainConfig.blockExplorerUrl}/address/${chainConfig.address}`}>
+            Deployed Contract
+          </a>
+          <span>/</span>
+          <a href="github">Give Feedback</a>
+          <span>/</span>
+          <a href="https://faucet.polygon.technology/">Get Test Tokens</a>
+        </Space>
+      </Footer>
     </div>
   );
 };

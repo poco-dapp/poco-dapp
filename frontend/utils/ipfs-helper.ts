@@ -1,8 +1,10 @@
 import { create } from "ipfs-http-client";
-import toBuffer = require("it-to-buffer");
 import { toString } from "uint8arrays/to-string";
 import filetypemime from "magic-bytes.js";
 import { downloadFileUsingBytes } from "./download-helper";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const toBuffer = require("it-to-buffer");
 
 const IPFS_URI_PREFIX = "ipfs://";
 

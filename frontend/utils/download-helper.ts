@@ -9,11 +9,11 @@ export const downloadFileUsingDataUri = (dataUri: string, name: string) => {
 };
 
 export const downloadFileUsingBytes = (uint8array: Uint8Array, fileType: string, name: string) => {
-  let blob = new Blob([uint8array], { type: fileType });
-  let reader = new FileReader();
+  const blob = new Blob([uint8array], { type: fileType });
+  const reader = new FileReader();
   reader.readAsDataURL(blob);
 
   reader.onload = function () {
-    downloadFileUsingDataUri(reader.result, name);
+    downloadFileUsingDataUri(reader.result as string, name);
   };
 };

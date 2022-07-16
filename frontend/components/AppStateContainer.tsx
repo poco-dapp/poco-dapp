@@ -10,6 +10,7 @@ import unTypedContractsConfig from "../utils/contractsConfig.json";
 interface ChainConfig {
   address: string;
   blockConfirmations: number;
+  blockExplorerUrl: string;
 }
 
 const contractsConfig: { [id: string]: ChainConfig } = unTypedContractsConfig;

@@ -99,22 +99,6 @@ const Instructions: FC = () => {
           description="A user/customer can then use the UID to view the product information with any associated certificate of authenticity, compliance, inspection etc."
         />
       </Steps>
-      <Space
-        css={css`
-          padding-bottom: 48px;
-          text-align: center;
-          width: 100%;
-          display: flex;
-          justify-content: center;
-          font-size: 16px;
-        `}
-      >
-        <a>Source code</a>
-        <span>-</span>
-        <a>Give Feedback</a>
-        <span>-</span>
-        <a>Get Test Tokens</a>
-      </Space>
     </div>
   );
 };

@@ -1,1 +1,12 @@
-{"31337":{"address":"0x82e01223d51Eb87e16A03E24687EDF0F294da6f1","blockConfirmations":1},"80001":{"address":"","blockConfirmations":6}}
+{
+  "31337": {
+    "address": "0x82e01223d51Eb87e16A03E24687EDF0F294da6f1",
+    "blockConfirmations": 1,
+    "blockExplorerUrl": ""
+  },
+  "80001": {
+    "address": "",
+    "blockConfirmations": 6,
+    "blockExplorerUrl": "https://mumbai.polygonscan.com/"
+  }
+}
