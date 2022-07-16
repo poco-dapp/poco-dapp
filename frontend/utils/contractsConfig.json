@@ -7,6 +7,6 @@
   "80001": {
     "address": "",
     "blockConfirmations": 6,
-    "blockExplorerUrl": "https://mumbai.polygonscan.com/"
+    "blockExplorerUrl": "https://mumbai.polygonscan.com"
   }
 }
