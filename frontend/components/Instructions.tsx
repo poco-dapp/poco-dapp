@@ -73,7 +73,7 @@ const Instructions: FC = () => {
               <p>Ensure you are connected to the Polygon blockchain.</p>
               <p>
                 <strong>
-                  For each form submission, the app charges $1 fee in Polygon&apos;s MATIC token.
+                  For each form submission, the app charges $0.05 fee in Polygon&apos;s MATIC token.
                 </strong>
               </p>
               <p>
