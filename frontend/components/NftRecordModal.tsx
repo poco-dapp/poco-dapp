@@ -92,6 +92,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
       visible={isModalVisible}
       onOk={onOk}
       onCancel={onCancel}
+      width={600}
       footer={[
         <Button onClick={onOk} key="submit" type="primary">
           OK
@@ -142,14 +143,18 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
               bordered
               column={1}
               labelStyle={{
-                width: "50%",
+                width: "24%",
               }}
             >
               <Descriptions.Item label="Orgnaization Name">
                 {nftMetadata?.organizationName}
               </Descriptions.Item>
               <Descriptions.Item label="Orgnaization Blockchain Wallet">
-                {nftMetadata?.organizationBlockchainWalletAddress}
+                <a
+                  href={`${chainConfig.blockExplorerUrl}/address/${nftMetadata?.organizationBlockchainWalletAddress}`}
+                >
+                  {nftMetadata?.organizationBlockchainWalletAddress}
+                </a>
               </Descriptions.Item>
               <Descriptions.Item label="Orgnaization Address">
                 {nftMetadata?.organizationAddress}
