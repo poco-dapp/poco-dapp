@@ -1,12 +1,10 @@
 import fs from "fs";
 
-import { HardhatRuntimeEnvironment, Network } from "hardhat/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import { DeploymentsExtension, DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction } from "hardhat-deploy/types";
 
-import { frontEndContractsFile, frontEndAbiFile, networkConfig } from "../helper-hardhat-config";
-import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/src/types";
-import type { ethers } from "ethers";
+import { frontEndContractsFile, frontEndAbiFile } from "../helper-hardhat-config";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("Writing to front end...");

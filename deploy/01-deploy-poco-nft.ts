@@ -6,7 +6,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { DEVELOPMENT_CHAINS, networkConfig } from "../helper-hardhat-config";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, network, getNamedAccounts, ethers } = hre;
+  const { deployments, network, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
@@ -15,14 +15,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const ethUsdAggregator = await deployments.get("MockV3Aggregator");
     usdPriceFeed = ethUsdAggregator.address;
   } else {
-    usdPriceFeed = networkConfig[network.name].usdPriceFeed!;
+    usdPriceFeed = networkConfig[network.name].usdPriceFeed || "";
   }
 
   const isMintEnabled = true;
   const mintFeeMicroUsd = networkConfig[network.name].mintFeeMicroUsd;
   const mintFeeRangeLimitPercent = 20;
 
-  const projectPoco = await deploy("PocoNft", {
+  await deploy("PocoNft", {
     from: deployer,
     args: [isMintEnabled, mintFeeMicroUsd, mintFeeRangeLimitPercent, usdPriceFeed],
     log: true,

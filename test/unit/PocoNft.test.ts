@@ -1,10 +1,10 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect, assert } from "chai";
-import { deployments, ethers, getNamedAccounts, network } from "hardhat";
+import { deployments, ethers, network } from "hardhat";
 import { DEVELOPMENT_CHAINS } from "../../helper-hardhat-config";
 import { MockV3Aggregator, PocoNft } from "../../typechain";
 import { Uid } from "../../common/uid-helper";
-import { BigNumber, providers } from "ethers";
+import { BigNumber } from "ethers";
 
 export const suiteFunction = !DEVELOPMENT_CHAINS.includes(network.name)
   ? describe.skip
