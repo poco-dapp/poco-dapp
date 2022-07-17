@@ -10,19 +10,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  let maticUsdPriceFeed: string;
+  let usdPriceFeed: string;
   if (DEVELOPMENT_CHAINS.includes(network.name)) {
     const ethUsdAggregator = await deployments.get("MockV3Aggregator");
-    maticUsdPriceFeed = ethUsdAggregator.address;
+    usdPriceFeed = ethUsdAggregator.address;
   } else {
-    maticUsdPriceFeed = networkConfig[network.name].maticUsdPriceFeed!;
+    usdPriceFeed = networkConfig[network.name].usdPriceFeed!;
   }
 
-  const mintFeeCents = networkConfig[network.name].mintFeeCents;
+  const isMintEnabled = true;
+  const mintFeeMicroUsd = networkConfig[network.name].mintFeeMicroUsd;
+  const mintFeeRangeLimitPercent = 20;
 
   const projectPoco = await deploy("PocoNft", {
     from: deployer,
-    args: [mintFeeCents, maticUsdPriceFeed],
+    args: [isMintEnabled, mintFeeMicroUsd, mintFeeRangeLimitPercent, usdPriceFeed],
     log: true,
     waitConfirmations: networkConfig[network.name].blockConfirmations || 1,
   });

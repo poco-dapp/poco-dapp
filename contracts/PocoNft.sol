@@ -14,7 +14,7 @@ contract PocoNft is Ownable, ERC721URIStorage {
   using PriceConverter for uint256;
 
   bool public isMintEnabled;
-  uint32 public mintFeeMicroCents;
+  uint32 public mintFeeMicroUsd;
   uint32 public mintFeeRangeLimitPercent;
   AggregatorV3Interface public priceFeed;
 
@@ -27,35 +27,36 @@ contract PocoNft is Ownable, ERC721URIStorage {
 
   modifier onlyNftOwner(bytes17 _nftUid) {
     uint256 nftId = getNftIdByUid(_nftUid);
-    require(_msgSender() == ownerOf(nftId), "Caller is not owner.");
+    require(_msgSender() == ownerOf(nftId), "Caller is not owner");
     _;
   }
 
   constructor(
     bool _isMintEnabled,
-    uint32 _mintFeeMicroCents,
+    uint32 _mintFeeMicroUsd,
     uint32 _mintFeeRangeLimitPercent,
     address _priceFeed
   ) Ownable() ERC721("PocoNFT", "POCO") {
     isMintEnabled = _isMintEnabled;
-    mintFeeMicroCents = _mintFeeMicroCents;
+    mintFeeMicroUsd = _mintFeeMicroUsd;
     mintFeeRangeLimitPercent = _mintFeeRangeLimitPercent;
     priceFeed = AggregatorV3Interface(_priceFeed);
+    nftIds.increment();
   }
 
   function mintNft(bytes17 _nftUid, string memory _nftUri) public payable {
-    require(isMintEnabled, "Minting has been disabled.");
+    require(isMintEnabled, "Minting has been disabled");
 
-    uint256 ethAmountInMicroCents = msg.value.getConversionRateMicroCents(priceFeed);
-    uint32 mintFeeRangeLimit = (mintFeeMicroCents * mintFeeRangeLimitPercent) / 100;
+    uint256 ethAmountInMicroUsd = getEthAmountInMicroUsd(msg.value);
+    uint32 mintFeeRangeLimit = (mintFeeMicroUsd * mintFeeRangeLimitPercent) / 100;
     require(
-      ethAmountInMicroCents >= mintFeeMicroCents - mintFeeRangeLimit &&
-        ethAmountInMicroCents < mintFeeMicroCents + mintFeeRangeLimit,
-      "Unexpected mint fee."
+      ethAmountInMicroUsd >= mintFeeMicroUsd - mintFeeRangeLimit &&
+        ethAmountInMicroUsd <= mintFeeMicroUsd + mintFeeRangeLimit,
+      "Unexpected mint fee"
     );
 
-    require(bytes(_nftUri).length != 0, "Nft URI needs to be valid.");
-    require(nftUidToId[_nftUid] == 0, "NFT with provided UID already exists.");
+    require(bytes(_nftUri).length != 0, "Nft URI needs to be valid");
+    require(nftUidToId[_nftUid] == 0, "NFT with provided UID already exists");
 
     uint256 newNftId = nftIds.current();
     _safeMint(_msgSender(), newNftId);
@@ -74,7 +75,7 @@ contract PocoNft is Ownable, ERC721URIStorage {
 
   function withdrawContractBalance() external onlyOwner {
     (bool success, ) = owner().call{value: address(this).balance}("");
-    require(success, "Withdrawal error.");
+    require(success, "Withdrawal error");
   }
 
   function updateNftUri(bytes17 _nftUid, string memory _nftUri) external onlyNftOwner(_nftUid) {
@@ -84,16 +85,20 @@ contract PocoNft is Ownable, ERC721URIStorage {
 
   function getNftIdByUid(bytes17 _nftUid) public view returns (uint256) {
     uint256 nftId = nftUidToId[_nftUid];
-    require(nftId != 0, "UID does not exist.");
+    require(nftId != 0, "UID does not exist");
     return nftId;
+  }
+
+  function getEthAmountInMicroUsd(uint256 _value) public view returns (uint256) {
+    return _value.getEthAmountInMicroUsd(priceFeed);
   }
 
   function setIsMintEnabled(bool _isMintEnabled) external onlyOwner {
     isMintEnabled = _isMintEnabled;
   }
 
-  function setMintFeeMicroCents(uint32 _mintFeeMicroCents) external onlyOwner {
-    mintFeeMicroCents = _mintFeeMicroCents;
+  function setMintFeeMicroUsd(uint32 _mintFeeMicroUsd) external onlyOwner {
+    mintFeeMicroUsd = _mintFeeMicroUsd;
   }
 
   function setMintFeeRangeLimitPercent(uint32 _mintFeeRangeLimitPercent) external onlyOwner {

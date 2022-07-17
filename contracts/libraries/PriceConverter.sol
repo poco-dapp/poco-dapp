@@ -6,7 +6,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 library PriceConverter {
   uint256 constant ETH_DECIMALS = 10**18;
-  uint32 constant MICRO_CENTS_DECIMALS = 10**6;
+  uint32 constant MICRO_USD_DECIMALS = 10**6;
 
   function getPrice(AggregatorV3Interface priceFeed) internal view returns (uint256) {
     (, int256 answer, , , ) = priceFeed.latestRoundData();
@@ -14,13 +14,12 @@ library PriceConverter {
     return uint256(answer) * (ETH_DECIMALS / (10**priceFeedDecimals));
   }
 
-  function getConversionRateMicroCents(uint256 ethAmount, AggregatorV3Interface priceFeed)
+  function getEthAmountInMicroUsd(uint256 ethAmount, AggregatorV3Interface priceFeed)
     internal
     view
     returns (uint256)
   {
     uint256 ethPrice = getPrice(priceFeed);
-    uint256 ethAmountInCents = (ethPrice * ethAmount * MICRO_CENTS_DECIMALS) / (ETH_DECIMALS**2);
-    return ethAmountInCents;
+    return (ethPrice * ethAmount * MICRO_USD_DECIMALS) / (ETH_DECIMALS**2);
   }
 }

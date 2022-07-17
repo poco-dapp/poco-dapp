@@ -29,6 +29,6 @@ async function updateContractAddresses(hre: HardhatRuntimeEnvironment) {
   contractsConfig[chainId].address = pocoNft.address;
   fs.writeFileSync(frontEndContractsFile, JSON.stringify(contractsConfig));
 }
-func.tags = ["all", "frontend"];
+func.tags = ["frontend"];
 
 export default func;
