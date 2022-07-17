@@ -55,7 +55,7 @@ contract PocoNft is Ownable, ERC721URIStorage {
       "Unexpected mint fee"
     );
 
-    require(bytes(_nftUri).length != 0, "Nft URI needs to be valid");
+    require(bytes(_nftUri).length > 53, "Nft URI needs to be valid");
     require(nftUidToId[_nftUid] == 0, "NFT with provided UID already exists");
 
     uint256 newNftId = nftIds.current();
@@ -103,5 +103,9 @@ contract PocoNft is Ownable, ERC721URIStorage {
 
   function setMintFeeRangeLimitPercent(uint32 _mintFeeRangeLimitPercent) external onlyOwner {
     mintFeeRangeLimitPercent = _mintFeeRangeLimitPercent;
+  }
+
+  function totalSupply() public view returns (uint256) {
+    return nftIds.current();
   }
 }

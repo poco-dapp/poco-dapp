@@ -9,18 +9,17 @@ import { BigNumber, providers } from "ethers";
 export const suiteFunction = !DEVELOPMENT_CHAINS.includes(network.name)
   ? describe.skip
   : describe("PocoNft", function () {
+      const USER1_NFT_URI = `ipfs://${"a".repeat(47)}`;
       let pocoNft: PocoNft;
       let mockV3Aggregator: MockV3Aggregator;
       let deployer: SignerWithAddress;
       let user1: SignerWithAddress;
-      let user2: SignerWithAddress;
       let validEthAmount: number;
 
       beforeEach(async () => {
         const accounts = await ethers.getSigners();
         deployer = accounts[0];
         user1 = accounts[1];
-        user2 = accounts[2];
 
         await deployments.fixture(["all"]);
         pocoNft = await ethers.getContract("PocoNft");
@@ -34,7 +33,7 @@ export const suiteFunction = !DEVELOPMENT_CHAINS.includes(network.name)
         validEthAmount = mintFeeScaled.toNumber() / usdRate.toNumber();
       });
 
-      describe("constructor", async function () {
+      describe("constructor", () => {
         it("constructor arguments set correctly", async () => {
           const isMintEnabled = await pocoNft.isMintEnabled();
           const mintFeeMicroUsd = await pocoNft.mintFeeMicroUsd();
@@ -50,21 +49,20 @@ export const suiteFunction = !DEVELOPMENT_CHAINS.includes(network.name)
         });
       });
 
-      describe("mintNft", async function () {
+      describe("mintNft", () => {
         it("Should allow user1 to mint", async () => {
           const uid = Uid.generateUid();
-          const user1IpfsUri = "ipfs://user1";
 
-          const tx = await pocoNft.connect(user1).mintNft(uid.toHexString(), user1IpfsUri, {
+          const tx = await pocoNft.connect(user1).mintNft(uid.toHexString(), USER1_NFT_URI, {
             value: ethers.utils.parseEther(validEthAmount.toString()),
           });
-          await tx.wait(1);
+          await tx.wait();
 
           const nftUri = await pocoNft.getNftUriByUid(uid.toHexString());
           const nftId = await pocoNft.getNftIdByUid(uid.toHexString());
           const nftOwner = await pocoNft.ownerOf(nftId);
 
-          assert.equal(nftUri, user1IpfsUri);
+          assert.equal(nftUri, USER1_NFT_URI);
           assert.equal(nftOwner, user1.address);
         });
 
@@ -72,14 +70,84 @@ export const suiteFunction = !DEVELOPMENT_CHAINS.includes(network.name)
           const mintFeeRangeLimitPercent = await pocoNft.mintFeeRangeLimitPercent();
           const ethAmount = validEthAmount * (1 + (mintFeeRangeLimitPercent + 1) / 100);
           const uid = Uid.generateUid();
-          const user1IpfsUri = "ipfs://user1";
-          const tx = pocoNft.connect(user1).mintNft(uid.toHexString(), user1IpfsUri, {
+          const tx = pocoNft.connect(user1).mintNft(uid.toHexString(), USER1_NFT_URI, {
             value: ethers.utils.parseEther(ethAmount.toString()),
           });
 
           await expect(tx).to.be.revertedWith("Unexpected mint fee");
         });
 
-        // TODO: Check Mint enabled and log events, withdraw balance
+        it("Should log event after a mint", async () => {
+          const uid = Uid.generateUid();
+
+          const tx = await pocoNft.connect(user1).mintNft(uid.toHexString(), USER1_NFT_URI, {
+            value: ethers.utils.parseEther(validEthAmount.toString()),
+          });
+          await tx.wait();
+
+          const filter = pocoNft.filters.NftMinted(user1.address);
+          const events = await pocoNft.queryFilter(filter, "latest");
+
+          events.forEach((event) => {
+            assert.equal(event.args.minter, user1.address);
+            assert.equal(event.args.nftUid, uid.toHexString());
+          });
+        });
+      });
+
+      describe("setIsMintEnabled", () => {
+        it("Only contract owner should be allowed to disable minting", async () => {
+          const tx1 = pocoNft.connect(user1).setIsMintEnabled(false);
+
+          await expect(tx1).to.be.revertedWith("Ownable: caller is not the owner");
+
+          await pocoNft.connect(deployer).setIsMintEnabled(false);
+
+          const isMintEnabled = await pocoNft.isMintEnabled();
+          assert.equal(isMintEnabled, false);
+        });
+
+        it("Should prevent minting if flag is disabled", async () => {
+          await pocoNft.connect(deployer).setIsMintEnabled(false);
+
+          const uid = Uid.generateUid();
+
+          const tx = pocoNft.connect(user1).mintNft(uid.toHexString(), USER1_NFT_URI, {
+            value: ethers.utils.parseEther(validEthAmount.toString()),
+          });
+          await expect(tx).to.be.revertedWith("Minting has been disabled");
+        });
+      });
+
+      describe("withdrawContractBalance", () => {
+        beforeEach(async () => {
+          const uid = Uid.generateUid();
+
+          const tx = await pocoNft.connect(user1).mintNft(uid.toHexString(), USER1_NFT_URI, {
+            value: ethers.utils.parseEther(validEthAmount.toString()),
+          });
+          await tx.wait();
+        });
+
+        it("Should only allow contract owner to withdraw balance", async () => {
+          const tx1 = pocoNft.connect(user1).withdrawContractBalance();
+
+          await expect(tx1).to.be.revertedWith("Ownable: caller is not the owner");
+
+          const contractStartingBalance = await pocoNft.provider.getBalance(pocoNft.address);
+          const deployerStartingBalance = await deployer.getBalance();
+
+          const tx3 = await pocoNft.connect(deployer).withdrawContractBalance();
+          const txReceipt = await tx3.wait();
+          const { gasUsed, effectiveGasPrice } = txReceipt;
+          const gasCost = gasUsed.mul(effectiveGasPrice);
+
+          const deployerEndingBalance = await deployer.getBalance();
+
+          assert.equal(
+            contractStartingBalance.add(deployerStartingBalance).toString(),
+            deployerEndingBalance.add(gasCost).toString()
+          );
+        });
       });
     });
