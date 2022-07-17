@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 
-import { Uid } from "../common/uid-helper";
+import { Uid } from "../frontend/utils/uid-generator";
 import { MockV3Aggregator, PocoNft } from "../typechain";
 
 task("interact:mint", "").setAction(async (args, hre: HardhatRuntimeEnvironment) => {

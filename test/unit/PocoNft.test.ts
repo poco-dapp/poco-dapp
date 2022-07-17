@@ -3,7 +3,7 @@ import { expect, assert } from "chai";
 import { deployments, ethers, network } from "hardhat";
 import { DEVELOPMENT_CHAINS } from "../../helper-hardhat-config";
 import { MockV3Aggregator, PocoNft } from "../../typechain";
-import { Uid } from "../../common/uid-helper";
+import { Uid } from "../../frontend/utils/uid-generator";
 import { BigNumber } from "ethers";
 
 export const suiteFunction = !DEVELOPMENT_CHAINS.includes(network.name)
