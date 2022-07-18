@@ -13,6 +13,21 @@ contract PocoNft is Ownable, ERC721URIStorage {
   using Counters for Counters.Counter;
   using PriceConverter for uint256;
 
+  /* ========== EVENTS ========== */
+
+  event NftMinted(address indexed minter, bytes17 indexed nftUid, string nftUri);
+  event NftUriUpdated(address indexed owner, bytes17 indexed nftUid, string nftUri);
+
+  /* ========== MODIFIERS ========== */
+
+  modifier onlyNftOwner(bytes17 _nftUid) {
+    uint256 nftId = getNftIdByUid(_nftUid);
+    require(_msgSender() == ownerOf(nftId), "Caller is not owner");
+    _;
+  }
+
+  /* ========== STATE VARIABLES ========== */
+
   bool public isMintEnabled;
   uint32 public mintFeeMicroUsd;
   uint32 public mintFeeRangeLimitPercent;
@@ -21,15 +36,7 @@ contract PocoNft is Ownable, ERC721URIStorage {
   mapping(bytes17 => uint256) private nftUidToId;
   Counters.Counter private nftIds;
 
-  event NftMinted(address indexed minter, bytes17 indexed nftUid, string nftUri);
-
-  event NftUriUpdated(address indexed owner, bytes17 indexed nftUid, string nftUri);
-
-  modifier onlyNftOwner(bytes17 _nftUid) {
-    uint256 nftId = getNftIdByUid(_nftUid);
-    require(_msgSender() == ownerOf(nftId), "Caller is not owner");
-    _;
-  }
+  /* ========== CONSTRUCTOR ========== */
 
   constructor(
     bool _isMintEnabled,
@@ -43,6 +50,8 @@ contract PocoNft is Ownable, ERC721URIStorage {
     priceFeed = AggregatorV3Interface(_priceFeed);
     nftIds.increment();
   }
+
+  /* ========== MUTATIVE FUNCTIONS ========== */
 
   function mintNft(bytes17 _nftUid, string memory _nftUri) public payable {
     require(isMintEnabled, "Minting has been disabled");
@@ -67,20 +76,17 @@ contract PocoNft is Ownable, ERC721URIStorage {
     emit NftMinted(_msgSender(), _nftUid, _nftUri);
   }
 
+  function updateNftUri(bytes17 _nftUid, string memory _nftUri) external onlyNftOwner(_nftUid) {
+    _setTokenURI(getNftIdByUid(_nftUid), _nftUri);
+    emit NftUriUpdated(_msgSender(), _nftUid, _nftUri);
+  }
+
+  /* ========== VIEW FUNCTIONS ========== */
+
   function getNftUriByUid(bytes17 _nftUid) public view returns (string memory) {
     uint256 nftId = getNftIdByUid(_nftUid);
     string memory nftUri = tokenURI(nftId);
     return nftUri;
-  }
-
-  function withdrawContractBalance() external onlyOwner {
-    (bool success, ) = owner().call{value: address(this).balance}("");
-    require(success, "Withdrawal error");
-  }
-
-  function updateNftUri(bytes17 _nftUid, string memory _nftUri) external onlyNftOwner(_nftUid) {
-    _setTokenURI(getNftIdByUid(_nftUid), _nftUri);
-    emit NftUriUpdated(_msgSender(), _nftUid, _nftUri);
   }
 
   function getNftIdByUid(bytes17 _nftUid) public view returns (uint256) {
@@ -93,6 +99,19 @@ contract PocoNft is Ownable, ERC721URIStorage {
     return _value.getEthAmountInMicroUsd(priceFeed);
   }
 
+  function totalSupply() public view returns (uint256) {
+    return nftIds.current();
+  }
+
+  /* ========== INTERNAL FUNCTIONS ========== */
+
+  /* ========== ADMIN FUNCTIONS ========== */
+
+  function withdrawContractBalance() external onlyOwner {
+    (bool success, ) = owner().call{value: address(this).balance}("");
+    require(success, "Withdrawal error");
+  }
+
   function setIsMintEnabled(bool _isMintEnabled) external onlyOwner {
     isMintEnabled = _isMintEnabled;
   }
@@ -103,9 +122,5 @@ contract PocoNft is Ownable, ERC721URIStorage {
 
   function setMintFeeRangeLimitPercent(uint32 _mintFeeRangeLimitPercent) external onlyOwner {
     mintFeeRangeLimitPercent = _mintFeeRangeLimitPercent;
-  }
-
-  function totalSupply() public view returns (uint256) {
-    return nftIds.current();
   }
 }
