@@ -118,13 +118,13 @@ const Home: NextPage = () => {
             font-size: 16px;
           `}
         >
-          <a href="github">Source code</a>
+          <a href="https://github.com/poco-dapp/poco-dapp">Source code</a>
           <span>/</span>
           <a href={`${chainConfig.blockExplorerUrl}/address/${chainConfig.address}`}>
             Deployed Contract
           </a>
           <span>/</span>
-          <a href="github">Give Feedback</a>
+          <a href="https://github.com/poco-dapp/poco-dapp/discussions">Give Feedback</a>
           <span>/</span>
           <a href="https://faucet.polygon.technology/">Get Test Tokens</a>
         </Space>
