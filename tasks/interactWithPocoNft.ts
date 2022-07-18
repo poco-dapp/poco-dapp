@@ -1,20 +1,20 @@
-// @ts-nocheck
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 
-import { v4 as uuid4 } from "uuid";
+import { Uid } from "../frontend/utils/uid-generator";
 import { MockV3Aggregator, PocoNft } from "../typechain";
 
 task("interact:mint", "").setAction(async (args, hre: HardhatRuntimeEnvironment) => {
   const { deployer } = await hre.getNamedAccounts();
   const pocoNft: PocoNft = await hre.ethers.getContract("PocoNft");
 
-  const hexifiedUuid = "0x" + uuid4().replace(/-/g, "");
+  const hexifiedUuid = Uid.generateUid().toHexString();
+  const sampleIpfsUri = `ipfs://${"a".repeat(47)}`;
 
-  const result = await pocoNft.mintNft(hre.ethers.utils.arrayify(hexifiedUuid), "ipfs://123", {
-    value: hre.ethers.utils.parseEther("2"),
+  const result = await pocoNft.mintNft(hre.ethers.utils.arrayify(hexifiedUuid), sampleIpfsUri, {
+    value: hre.ethers.utils.parseEther("0.1"),
   });
-  await result.wait(1);
+  await result.wait();
 
   const contractBalance = (await hre.ethers.provider.getBalance(pocoNft.address)).toString();
   const userBalance = (await hre.ethers.provider.getBalance(deployer)).toString();
@@ -29,8 +29,17 @@ task("interact:getUri", "")
   .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
     const pocoNft: PocoNft = await hre.ethers.getContract("PocoNft");
 
-    const uri = await pocoNft.getTokenUriByUuid(args.hexifieduuid);
+    const uri = await pocoNft.getNftUriByUid(args.hexifieduuid);
     console.log("URI: ", uri);
+  });
+
+task("interact:getEthAmountInMicroUsd", "")
+  .addParam("eth", "")
+  .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+    const pocoNft: PocoNft = await hre.ethers.getContract("PocoNft");
+
+    const result = await pocoNft.getEthAmountInMicroUsd(hre.ethers.utils.parseEther(args.eth));
+    console.log("ethAmountInMicroUsd: ", result.toString());
   });
 
 task("interact:priceFeed", "").setAction(async (args, hre: HardhatRuntimeEnvironment) => {

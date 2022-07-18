@@ -2,7 +2,6 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, utils } from "ethers";
 
 import { DEVELOPMENT_CHAINS, networkConfig } from "../helper-hardhat-config";
 
@@ -11,19 +10,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  let maticUsdPriceFeed: string;
+  let usdPriceFeed: string;
   if (DEVELOPMENT_CHAINS.includes(network.name)) {
     const ethUsdAggregator = await deployments.get("MockV3Aggregator");
-    maticUsdPriceFeed = ethUsdAggregator.address;
+    usdPriceFeed = ethUsdAggregator.address;
   } else {
-    maticUsdPriceFeed = networkConfig[network.name].maticUsdPriceFeed!;
+    usdPriceFeed = networkConfig[network.name].usdPriceFeed || "";
   }
 
-  const mintFeeCents = networkConfig[network.name].mintFeeCents;
+  const isMintEnabled = true;
+  const mintFeeMicroUsd = networkConfig[network.name].mintFeeMicroUsd;
+  const mintFeeRangeLimitPercent = 20;
 
-  const projectPoco = await deploy("PocoNft", {
+  await deploy("PocoNft", {
     from: deployer,
-    args: [mintFeeCents, maticUsdPriceFeed],
+    args: [isMintEnabled, mintFeeMicroUsd, mintFeeRangeLimitPercent, usdPriceFeed],
     log: true,
     waitConfirmations: networkConfig[network.name].blockConfirmations || 1,
   });
@@ -40,6 +41,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // log("----------------------------------------------------")
 };
 
-func.tags = ["all"];
+func.tags = ["all", "PocoNft"];
 
 export default func;

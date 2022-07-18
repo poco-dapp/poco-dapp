@@ -1,0 +1,13 @@
+@import url("https://rsms.me/inter/inter.css");
+html,
+body {
+  font-family: "Inter", sans-serif;
+}
+
+.ant-btn {
+  border-radius: 10px;
+}
+
+.ant-input {
+  border-radius: 4px;
+}
