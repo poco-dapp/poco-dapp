@@ -53,9 +53,6 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const loadNft = async (uid: Uid) => {
     try {
-      if (!chain) {
-        throw new Error("Unable to connect to the blockchain.");
-      }
       setNftMetadata(null);
       const nftUri = await pocoNftContract.getNftUriByUid(uid.toHexString());
       const metadata = await getMetaDataFromIpfs(nftUri);

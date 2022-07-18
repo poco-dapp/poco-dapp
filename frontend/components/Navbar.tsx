@@ -50,7 +50,7 @@ const Navbar: FC = () => {
       >
         POCO://{" "}
         <span>
-          <Tag color="orange">alpha/test mode</Tag>
+          <Tag color="orange">test mode</Tag>
         </span>
       </Title>
       <Search
