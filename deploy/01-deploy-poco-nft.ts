@@ -4,6 +4,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { DEVELOPMENT_CHAINS, networkConfig } from "../helper-hardhat-config";
+import verify from "../utils/verify";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, network, getNamedAccounts } = hre;
@@ -22,25 +23,25 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const mintFeeMicroUsd = networkConfig[network.name].mintFeeMicroUsd;
   const mintFeeRangeLimitPercent = 20;
 
-  await deploy("PocoNft", {
+  const pocoNft = await deploy("PocoNft", {
     from: deployer,
     args: [isMintEnabled, mintFeeMicroUsd, mintFeeRangeLimitPercent, usdPriceFeed],
     log: true,
     waitConfirmations: networkConfig[network.name].blockConfirmations || 1,
   });
 
-  //   // Verify the deployment
-  //   if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-  //     log("Verifying...")
-  //     await verify(raffle.address, arguments)
-  // }
+  console.log(`PocoNft deployed at ${pocoNft.address}`);
 
-  // log("Enter lottery with command:")
-  // const networkName = network.name == "hardhat" ? "localhost" : network.name
-  // log(`yarn hardhat run scripts/enterRaffle.js --network ${networkName}`)
-  // log("----------------------------------------------------")
+  if (!DEVELOPMENT_CHAINS.includes(network.name) && process.env.POLYGONSCAN_API_KEY) {
+    await verify(pocoNft.address, [
+      isMintEnabled,
+      mintFeeMicroUsd,
+      mintFeeRangeLimitPercent,
+      usdPriceFeed,
+    ]);
+  }
 };
 
-func.tags = ["all", "PocoNft"];
+func.tags = ["PocoNft", "testnet"];
 
 export default func;
