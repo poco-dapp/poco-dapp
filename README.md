@@ -4,6 +4,9 @@ POCO is a **decentralized app** to store
 **Proof of Certification and Ownership information**, as ERC-721 NFTs, for
 **physical products** to combat counterfeiting and facilitate traceability.
 
+Since the app uses a public blockchain and filesystem - **Polygon and IPFS**, all product information and documents submitted will always be available without
+restriction.
+
 ## Setup
 
 ### Deploy contracts to localhost network
