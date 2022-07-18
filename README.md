@@ -18,7 +18,7 @@ cp .env.example .env
 # Run localhost chain
 yarn hardhat node
 
-# Deploy - Will compile and generate the abi for frontend
+# Compile and deploy contracts and generate the abi for frontend
 yarn hardhat deploy --network localhost
 ```
 
