@@ -2,6 +2,9 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 
 import { Uid } from "../frontend/utils/uid-generator";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { MockV3Aggregator, PocoNft } from "../typechain";
 
 task("interact:mint", "").setAction(async (args, hre: HardhatRuntimeEnvironment) => {
@@ -11,7 +14,7 @@ task("interact:mint", "").setAction(async (args, hre: HardhatRuntimeEnvironment)
   const hexifiedUuid = Uid.generateUid().toHexString();
   const sampleIpfsUri = `ipfs://${"a".repeat(47)}`;
 
-  const result = await pocoNft.mintNft(hre.ethers.utils.arrayify(hexifiedUuid), sampleIpfsUri, {
+  const result = await pocoNft.mintNft(hexifiedUuid, sampleIpfsUri, {
     value: hre.ethers.utils.parseEther("0.1"),
   });
   await result.wait();

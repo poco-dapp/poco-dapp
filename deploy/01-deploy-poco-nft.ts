@@ -42,6 +42,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 };
 
-func.tags = ["PocoNft", "testnet"];
+func.tags = ["PocoNft", "unittest", "testnet"];
 
 export default func;

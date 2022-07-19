@@ -14,6 +14,12 @@ import { POLYGON_TEST_MUMBAI_CHAIN_ID, HARDHAT_LOCALHOST_CHAIN_ID } from "./help
 
 dotenv.config();
 
+const POLYGON_TEST_MUMBAI_NODE_URL = process.env.POLYGON_TEST_MUMBAI_NODE_URL || "";
+const POLYGON_TEST_MUMBAI_PRIVATE_KEY = process.env.POLYGON_TEST_MUMBAI_PRIVATE_KEY;
+const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
+const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY;
+const REPORT_GAS = process.env.REPORT_GAS;
+
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
@@ -30,23 +36,21 @@ const config: HardhatUserConfig = {
       chainId: HARDHAT_LOCALHOST_CHAIN_ID,
     },
     mumbai: {
-      url: process.env.POLYGON_TEST_MUMBAI_NODE_URL || "",
+      url: POLYGON_TEST_MUMBAI_NODE_URL,
       accounts:
-        process.env.POLYGON_TEST_MUMBAI_PRIVATE_KEY !== undefined
-          ? [process.env.POLYGON_TEST_MUMBAI_PRIVATE_KEY]
-          : [],
+        POLYGON_TEST_MUMBAI_PRIVATE_KEY !== undefined ? [POLYGON_TEST_MUMBAI_PRIVATE_KEY] : [],
       chainId: POLYGON_TEST_MUMBAI_CHAIN_ID,
     },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
+    enabled: REPORT_GAS !== undefined,
     currency: "USD",
     gasPriceApi: "https://api.polygonscan.com/api?module=proxy&action=eth_gasPrice",
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    coinmarketcap: COINMARKETCAP_API_KEY,
     token: "MATIC",
   },
   etherscan: {
-    apiKey: process.env.POLYGONSCAN_API_KEY,
+    apiKey: POLYGONSCAN_API_KEY,
   },
   namedAccounts: {
     deployer: {
