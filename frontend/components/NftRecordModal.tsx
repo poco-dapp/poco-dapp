@@ -2,9 +2,10 @@ import React, { FC, useContext, useEffect, useRef, useState } from "react";
 
 import { Button, Modal, Space, Spin, Typography, Descriptions, Divider } from "antd";
 import { css } from "@emotion/react";
-import { useContract, useNetwork, useProvider } from "wagmi";
+import { useContract, useProvider } from "wagmi";
 import JsBarcode from "jsbarcode";
 import { QRCodeCanvas } from "qrcode.react";
+import { ContractInterface } from "ethers";
 import { ChainConfigContext } from "./AppStateContainer";
 import { downloadFileFromIpfs, getMetaDataFromIpfs, NftMetadata } from "../utils/ipfs-helper";
 import abi from "../utils/abi.json";
@@ -33,7 +34,6 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 }) => {
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
-  const { chain } = useNetwork();
   const barcodeImgRef = useRef<HTMLImageElement | null>(null);
 
   const [nftMetadata, setNftMetadata] = useState<NftMetadata | null>(null);
@@ -41,7 +41,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const pocoNftContract = useContract({
     addressOrName: chainConfig.address,
-    contractInterface: abi,
+    contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
 

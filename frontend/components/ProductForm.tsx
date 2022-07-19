@@ -5,7 +5,7 @@ import TextArea from "antd/lib/input/TextArea";
 import { UploadOutlined } from "@ant-design/icons";
 import { pdfjs } from "react-pdf";
 import { useAccount, useContract, useContractWrite, useNetwork, useProvider } from "wagmi";
-import { ethers } from "ethers";
+import { ContractInterface, ethers } from "ethers";
 import NftRecordModal from "./NftRecordModal";
 import { ChainConfigContext } from "./AppStateContainer";
 import DocumentPreview from "./DocumentPreview";
@@ -44,7 +44,7 @@ const ProductForm: FC = () => {
 
   const contractWrite = useContractWrite({
     addressOrName: chainConfig?.address,
-    contractInterface: abi,
+    contractInterface: abi as ContractInterface,
     functionName: "mintNft",
     onSuccess(data) {
       handleMintSuccess(data);
@@ -53,7 +53,7 @@ const ProductForm: FC = () => {
 
   const pocoNftContract = useContract({
     addressOrName: chainConfig?.address,
-    contractInterface: abi,
+    contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
 
