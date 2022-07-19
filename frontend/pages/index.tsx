@@ -7,7 +7,7 @@ import type { NextPage } from "next";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { useAccount, useContract, useProvider } from "wagmi";
 
-import { Event } from "ethers";
+import { ContractInterface, Event } from "ethers";
 import ProductForm from "../components/ProductForm";
 import Instructions from "../components/Instructions";
 import NftRecordList, { LogEvent } from "../components/NftRecordList";
@@ -25,7 +25,7 @@ const Home: NextPage = () => {
 
   const pocoNftContract = useContract({
     addressOrName: chainConfig?.address,
-    contractInterface: abi,
+    contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
 
