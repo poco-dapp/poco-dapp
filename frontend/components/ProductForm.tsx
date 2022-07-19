@@ -85,7 +85,10 @@ const ProductForm: FC = () => {
 
         await contractWrite.writeAsync({
           args: [uid.toHexString(), metadataUri],
-          overrides: { value: ethers.utils.parseEther(String(appFeesInMatic)) },
+          overrides: {
+            value: ethers.utils.parseEther(String(appFeesInMatic)),
+            gasLimit: 3785823,
+          },
         });
       }
     } catch (err) {
@@ -108,6 +111,7 @@ const ProductForm: FC = () => {
     });
 
     form.resetFields();
+    setPreviewFile(undefined);
   };
 
   const handleFileBeforeUpload = (file: File) => {
