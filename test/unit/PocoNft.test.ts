@@ -21,7 +21,7 @@ export const suiteFunction = !DEVELOPMENT_CHAINS.includes(network.name)
         deployer = accounts[0];
         user1 = accounts[1];
 
-        await deployments.fixture(["all"]);
+        await deployments.fixture(["unittest"]);
         pocoNft = await ethers.getContract("PocoNft");
         mockV3Aggregator = await ethers.getContract("MockV3Aggregator");
 

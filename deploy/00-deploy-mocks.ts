@@ -22,4 +22,4 @@ const deployMocks: DeployFunction = async function (hre: HardhatRuntimeEnvironme
   }
 };
 export default deployMocks;
-deployMocks.tags = ["all", "mocks"];
+deployMocks.tags = ["mocks", "unittest"];
