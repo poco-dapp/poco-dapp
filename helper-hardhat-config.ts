@@ -31,5 +31,5 @@ export const networkConfig: NetworkConfigInfo = {
   },
 };
 
-export const frontEndContractsFile = "./frontend/utils/contractsConfig.json";
+export const frontEndContractsFile = "./frontend/utils/chainsConfig.json";
 export const frontEndAbiFile = "./frontend/utils/abi.json";
