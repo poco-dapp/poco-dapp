@@ -43,7 +43,7 @@ const ProductForm: FC = () => {
   const isWalletConnected = useWalletConnection();
 
   const contractWrite = useContractWrite({
-    addressOrName: chainConfig?.address,
+    addressOrName: chainConfig?.contractAddress,
     contractInterface: abi as ContractInterface,
     functionName: "mintNft",
     onSuccess(data) {
@@ -52,7 +52,7 @@ const ProductForm: FC = () => {
   });
 
   const pocoNftContract = useContract({
-    addressOrName: chainConfig?.address,
+    addressOrName: chainConfig?.contractAddress,
     contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
@@ -98,11 +98,15 @@ const ProductForm: FC = () => {
   };
 
   const handleMintSuccess = async (tx: ethers.providers.TransactionResponse) => {
-    await tx.wait(chainConfig.blockConfirmations);
+    const txReceipt = await tx.wait(chainConfig.blockConfirmations);
 
     const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
 
-    const events = await pocoNftContract.queryFilter(nftMintedEventFilter, "latest");
+    const events = await pocoNftContract.queryFilter(
+      nftMintedEventFilter,
+      txReceipt.blockNumber - chainConfig.blockConfirmations,
+      txReceipt.blockNumber
+    );
 
     events.forEach((event: ethers.Event) => {
       if (event.transactionHash === tx.hash && event.args) {

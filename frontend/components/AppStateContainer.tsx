@@ -5,21 +5,22 @@ import {
   HARDHAT_LOCALHOST_CHAIN_ID,
   POLYGON_TEST_MUMBAI_CHAIN_ID,
 } from "../utils/constants";
-import unTypedContractsConfig from "../utils/contractsConfig.json";
+import unTypedContractsConfig from "../utils/chainsConfig.json";
 
 interface ChainConfig {
-  address: string;
+  contractAddress: string;
   blockConfirmations: number;
   blockExplorerUrl: string;
+  contractDeployBlockNum: number;
 }
 
-const contractsConfig: { [id: string]: ChainConfig } = unTypedContractsConfig;
+const chainsConfig: { [id: string]: ChainConfig } = unTypedContractsConfig;
 
 let defaultChainConfig: ChainConfig;
 if (process.env.NEXT_PUBLIC_ENV === ENV_DEVELOPMENT) {
-  defaultChainConfig = contractsConfig[POLYGON_TEST_MUMBAI_CHAIN_ID];
+  defaultChainConfig = chainsConfig[POLYGON_TEST_MUMBAI_CHAIN_ID];
 } else {
-  defaultChainConfig = contractsConfig[HARDHAT_LOCALHOST_CHAIN_ID];
+  defaultChainConfig = chainsConfig[HARDHAT_LOCALHOST_CHAIN_ID];
 }
 
 export const ChainConfigContext = React.createContext<ChainConfig>(defaultChainConfig);
@@ -28,8 +29,8 @@ const AppStateContainer: FC<PropsWithChildren> = ({ children }) => {
   const { chain } = useNetwork();
 
   const chainConfig =
-    chain?.id && chain.id.toString() in contractsConfig
-      ? contractsConfig[chain.id.toString()]
+    chain?.id && chain.id.toString() in chainsConfig
+      ? chainsConfig[chain.id.toString()]
       : defaultChainConfig;
   return <ChainConfigContext.Provider value={chainConfig}>{children}</ChainConfigContext.Provider>;
 };

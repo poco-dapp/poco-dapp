@@ -20,12 +20,12 @@ async function updateAbi(hre: HardhatRuntimeEnvironment) {
 
 async function updateContractAddresses(hre: HardhatRuntimeEnvironment) {
   const pocoNft = await hre.ethers.getContract("PocoNft");
-  const contractsConfig = JSON.parse(fs.readFileSync(frontEndContractsFile, "utf8"));
+  const chainsConfig = JSON.parse(fs.readFileSync(frontEndContractsFile, "utf8"));
 
   const chainId = hre.network.config.chainId || "31337";
 
-  contractsConfig[chainId].address = pocoNft.address;
-  fs.writeFileSync(frontEndContractsFile, JSON.stringify(contractsConfig));
+  chainsConfig[chainId].contractAddress = pocoNft.address;
+  fs.writeFileSync(frontEndContractsFile, JSON.stringify(chainsConfig));
 }
 func.tags = ["frontend", "testnet"];
 

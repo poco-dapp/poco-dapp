@@ -15,16 +15,18 @@ import Navbar from "../components/Navbar";
 import { ChainConfigContext } from "../components/AppStateContainer";
 import { useWalletConnection } from "../utils/custom-hooks";
 import abi from "../utils/abi.json";
+import { showErrorNotification } from "../utils/error-helper";
 
 const Home: NextPage = () => {
   const [logEvents, setLogEvents] = useState<LogEvent[]>([]);
+  const [isNftRecordListLoading, setIsNftRecordListLoading] = useState(false);
   const isWalletConnected = useWalletConnection();
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
   const { address: walletAddress } = useAccount();
 
   const pocoNftContract = useContract({
-    addressOrName: chainConfig?.address,
+    addressOrName: chainConfig?.contractAddress,
     contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
@@ -38,36 +40,38 @@ const Home: NextPage = () => {
     return () => {
       unsubscribeAllEvents();
     };
-  }, [isWalletConnected, walletAddress]);
+  }, [isWalletConnected, walletAddress, chainConfig]);
 
   const getAllNftsMintedAndSubscribe = async () => {
-    const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
+    try {
+      setIsNftRecordListLoading(true);
 
-    const events: Event[] = await pocoNftContract.queryFilter(
-      nftMintedEventFilter,
-      "earliest",
-      "latest"
-    );
+      const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
 
-    const logEvents = await Promise.all(
-      events.map(async (event) => {
-        const block = await provider.getBlock(event.blockNumber);
-        return {
-          event,
-          block,
-        };
-      })
-    );
+      const events: Event[] = await pocoNftContract.queryFilter(
+        nftMintedEventFilter,
+        chainConfig.contractDeployBlockNum,
+        "latest"
+      );
 
-    setLogEvents([...logEvents.reverse()]);
+      const logEvents = await Promise.all(
+        events.map(async (event) => {
+          const block = await provider.getBlock(event.blockNumber);
+          return {
+            event,
+            block,
+          };
+        })
+      );
 
-    const latestBlockNumber = await provider.getBlockNumber();
+      setLogEvents([...logEvents.reverse()]);
 
-    provider.once("block", () => {
+      const initialLoadBlockNumber = await provider.getBlockNumber();
+
       pocoNftContract.on(
         nftMintedEventFilter,
         async (minter: string, nftUid: string, nftUri: string, event: Event) => {
-          if (event.blockNumber <= latestBlockNumber) {
+          if (event.blockNumber <= initialLoadBlockNumber) {
             // Ignore old blocks;
             return;
           }
@@ -77,7 +81,11 @@ const Home: NextPage = () => {
           setLogEvents((oldLogEvents) => [{ event, block }, ...oldLogEvents]);
         }
       );
-    });
+    } catch (err) {
+      showErrorNotification("Contract Fetch Error", err as Error);
+    } finally {
+      setIsNftRecordListLoading(false);
+    }
   };
 
   const unsubscribeAllEvents = () => {
@@ -90,19 +98,21 @@ const Home: NextPage = () => {
       <Navbar />
       <Content
         css={css`
-          padding-top: 32px;
+          padding-top: 16px;
+          padding-left: 16px;
+          padding-right: 16px;
         `}
       >
         <Row justify="space-evenly">
-          <Col span={6}>
+          <Col lg={{ span: 6 }}>
             <Instructions />
           </Col>
-          <Col span={6}>
+          <Col lg={{ span: 6 }}>
             <ProductForm />
           </Col>
-          {isWalletConnected && logEvents.length > 0 && (
-            <Col span={6}>
-              <NftRecordList logEvents={logEvents} />
+          {isWalletConnected && (
+            <Col lg={{ span: 6 }}>
+              <NftRecordList logEvents={logEvents} loading={isNftRecordListLoading} />
             </Col>
           )}
         </Row>
@@ -120,7 +130,7 @@ const Home: NextPage = () => {
         >
           <a href="https://github.com/poco-dapp/poco-dapp">Source code</a>
           <span>/</span>
-          <a href={`${chainConfig.blockExplorerUrl}/address/${chainConfig.address}`}>
+          <a href={`${chainConfig.blockExplorerUrl}/address/${chainConfig.contractAddress}`}>
             Deployed Contract
           </a>
           <span>/</span>

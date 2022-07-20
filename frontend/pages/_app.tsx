@@ -1,5 +1,4 @@
 import "antd/dist/antd.variable.min.css";
-import "../styles/global.css";
 
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -11,6 +10,7 @@ import { publicProvider } from "wagmi/providers/public";
 
 import { ConfigProvider } from "antd";
 import React from "react";
+import { css, Global } from "@emotion/react";
 import { ENV_DEVELOPMENT, PRIMARY_COLOR } from "../utils/constants";
 import AppStateContainer from "../components/AppStateContainer";
 
@@ -19,6 +19,22 @@ ConfigProvider.config({
     primaryColor: PRIMARY_COLOR,
   },
 });
+
+const GlobalStyles = css`
+  @import url("https://rsms.me/inter/inter.css");
+  html,
+  body {
+    font-family: "Inter", sans-serif;
+  }
+
+  .ant-btn {
+    border-radius: 10px;
+  }
+
+  .ant-input {
+    border-radius: 4px;
+  }
+`;
 
 let chainsEnabled: Chain[];
 if (process.env.NEXT_PUBLIC_ENV === ENV_DEVELOPMENT) {
@@ -45,6 +61,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider theme={lightTheme({ accentColor: PRIMARY_COLOR })} chains={chains}>
         <div>
+          <Global styles={GlobalStyles} />
           <Head>
             <title>POCO</title>
             <meta
