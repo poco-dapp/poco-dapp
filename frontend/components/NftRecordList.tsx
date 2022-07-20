@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { Button, List, Space, Typography } from "antd";
+import { Button, Empty, List, Space, Typography } from "antd";
 import * as ethers from "ethers";
 import moment from "moment";
 import React, { FC } from "react";
@@ -11,6 +11,7 @@ const { Text, Title } = Typography;
 
 export interface NftRecordListProps {
   logEvents: LogEvent[];
+  loading: boolean;
 }
 export interface LogEvent {
   event: ethers.Event;
@@ -50,7 +51,7 @@ const ListItem: FC<{ logEvent: LogEvent; onNftUidClick: (uid: Uid) => void }> = 
   );
 };
 
-const NftRecordList: FC<NftRecordListProps> = ({ logEvents }) => {
+const NftRecordList: FC<NftRecordListProps> = ({ logEvents, loading }) => {
   const {
     uid,
     isModalVisible,
@@ -72,6 +73,7 @@ const NftRecordList: FC<NftRecordListProps> = ({ logEvents }) => {
         header={<Title level={5}>Product Digital Certificates</Title>}
         bordered
         dataSource={logEvents}
+        loading={loading}
         renderItem={(item) => (
           <ListItem
             key={item.event.transactionHash}

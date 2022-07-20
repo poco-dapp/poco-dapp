@@ -19,6 +19,7 @@ import { showErrorNotification } from "../utils/error-helper";
 
 const Home: NextPage = () => {
   const [logEvents, setLogEvents] = useState<LogEvent[]>([]);
+  const [isNftRecordListLoading, setIsNftRecordListLoading] = useState(false);
   const isWalletConnected = useWalletConnection();
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
@@ -43,6 +44,8 @@ const Home: NextPage = () => {
 
   const getAllNftsMintedAndSubscribe = async () => {
     try {
+      setIsNftRecordListLoading(true);
+
       const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
 
       const events: Event[] = await pocoNftContract.queryFilter(
@@ -63,25 +66,25 @@ const Home: NextPage = () => {
 
       setLogEvents([...logEvents.reverse()]);
 
-      const latestBlockNumber = await provider.getBlockNumber();
+      const initialLoadBlockNumber = await provider.getBlockNumber();
 
-      provider.once("block", () => {
-        pocoNftContract.on(
-          nftMintedEventFilter,
-          async (minter: string, nftUid: string, nftUri: string, event: Event) => {
-            if (event.blockNumber <= latestBlockNumber) {
-              // Ignore old blocks;
-              return;
-            }
-
-            const block = await provider.getBlock(event.blockNumber);
-
-            setLogEvents((oldLogEvents) => [{ event, block }, ...oldLogEvents]);
+      pocoNftContract.on(
+        nftMintedEventFilter,
+        async (minter: string, nftUid: string, nftUri: string, event: Event) => {
+          if (event.blockNumber <= initialLoadBlockNumber) {
+            // Ignore old blocks;
+            return;
           }
-        );
-      });
+
+          const block = await provider.getBlock(event.blockNumber);
+
+          setLogEvents((oldLogEvents) => [{ event, block }, ...oldLogEvents]);
+        }
+      );
     } catch (err) {
       showErrorNotification("Contract Fetch Error", err as Error);
+    } finally {
+      setIsNftRecordListLoading(false);
     }
   };
 
@@ -107,9 +110,9 @@ const Home: NextPage = () => {
           <Col lg={{ span: 6 }}>
             <ProductForm />
           </Col>
-          {isWalletConnected && logEvents.length > 0 && (
+          {isWalletConnected && (
             <Col lg={{ span: 6 }}>
-              <NftRecordList logEvents={logEvents} />
+              <NftRecordList logEvents={logEvents} loading={isNftRecordListLoading} />
             </Col>
           )}
         </Row>
