@@ -95,18 +95,20 @@ const Home: NextPage = () => {
       <Navbar />
       <Content
         css={css`
-          padding-top: 32px;
+          padding-top: 16px;
+          padding-left: 16px;
+          padding-right: 16px;
         `}
       >
         <Row justify="space-evenly">
-          <Col span={6}>
+          <Col lg={{ span: 6 }}>
             <Instructions />
           </Col>
-          <Col span={6}>
+          <Col lg={{ span: 6 }}>
             <ProductForm />
           </Col>
           {isWalletConnected && logEvents.length > 0 && (
-            <Col span={6}>
+            <Col lg={{ span: 6 }}>
               <NftRecordList logEvents={logEvents} />
             </Col>
           )}
