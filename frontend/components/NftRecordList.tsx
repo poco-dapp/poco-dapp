@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { Button, Empty, List, Space, Typography } from "antd";
+import { Button, List, Space, Typography } from "antd";
 import * as ethers from "ethers";
 import moment from "moment";
 import React, { FC } from "react";

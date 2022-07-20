@@ -81,6 +81,8 @@ const Navbar: FC = () => {
         `}
       />
       <ConnectButton
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         label={
           screens.lg ? (
             <span>
