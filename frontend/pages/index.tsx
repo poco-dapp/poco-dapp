@@ -15,6 +15,7 @@ import Navbar from "../components/Navbar";
 import { ChainConfigContext } from "../components/AppStateContainer";
 import { useWalletConnection } from "../utils/custom-hooks";
 import abi from "../utils/abi.json";
+import { showErrorNotification } from "../utils/error-helper";
 
 const Home: NextPage = () => {
   const [logEvents, setLogEvents] = useState<LogEvent[]>([]);
@@ -24,7 +25,7 @@ const Home: NextPage = () => {
   const { address: walletAddress } = useAccount();
 
   const pocoNftContract = useContract({
-    addressOrName: chainConfig?.address,
+    addressOrName: chainConfig?.contractAddress,
     contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
@@ -38,46 +39,50 @@ const Home: NextPage = () => {
     return () => {
       unsubscribeAllEvents();
     };
-  }, [isWalletConnected, walletAddress]);
+  }, [isWalletConnected, walletAddress, chainConfig]);
 
   const getAllNftsMintedAndSubscribe = async () => {
-    const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
+    try {
+      const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
 
-    const events: Event[] = await pocoNftContract.queryFilter(
-      nftMintedEventFilter,
-      "earliest",
-      "latest"
-    );
-
-    const logEvents = await Promise.all(
-      events.map(async (event) => {
-        const block = await provider.getBlock(event.blockNumber);
-        return {
-          event,
-          block,
-        };
-      })
-    );
-
-    setLogEvents([...logEvents.reverse()]);
-
-    const latestBlockNumber = await provider.getBlockNumber();
-
-    provider.once("block", () => {
-      pocoNftContract.on(
+      const events: Event[] = await pocoNftContract.queryFilter(
         nftMintedEventFilter,
-        async (minter: string, nftUid: string, nftUri: string, event: Event) => {
-          if (event.blockNumber <= latestBlockNumber) {
-            // Ignore old blocks;
-            return;
-          }
-
-          const block = await provider.getBlock(event.blockNumber);
-
-          setLogEvents((oldLogEvents) => [{ event, block }, ...oldLogEvents]);
-        }
+        chainConfig.contractDeployBlockNum,
+        "latest"
       );
-    });
+
+      const logEvents = await Promise.all(
+        events.map(async (event) => {
+          const block = await provider.getBlock(event.blockNumber);
+          return {
+            event,
+            block,
+          };
+        })
+      );
+
+      setLogEvents([...logEvents.reverse()]);
+
+      const latestBlockNumber = await provider.getBlockNumber();
+
+      provider.once("block", () => {
+        pocoNftContract.on(
+          nftMintedEventFilter,
+          async (minter: string, nftUid: string, nftUri: string, event: Event) => {
+            if (event.blockNumber <= latestBlockNumber) {
+              // Ignore old blocks;
+              return;
+            }
+
+            const block = await provider.getBlock(event.blockNumber);
+
+            setLogEvents((oldLogEvents) => [{ event, block }, ...oldLogEvents]);
+          }
+        );
+      });
+    } catch (err) {
+      showErrorNotification("Contract Fetch Error", err as Error);
+    }
   };
 
   const unsubscribeAllEvents = () => {
@@ -120,7 +125,7 @@ const Home: NextPage = () => {
         >
           <a href="https://github.com/poco-dapp/poco-dapp">Source code</a>
           <span>/</span>
-          <a href={`${chainConfig.blockExplorerUrl}/address/${chainConfig.address}`}>
+          <a href={`${chainConfig.blockExplorerUrl}/address/${chainConfig.contractAddress}`}>
             Deployed Contract
           </a>
           <span>/</span>

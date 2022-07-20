@@ -40,7 +40,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   const [downloadDocumentInProgress, setDownloadDocumentInProgress] = useState(false);
 
   const pocoNftContract = useContract({
-    addressOrName: chainConfig.address,
+    addressOrName: chainConfig.contractAddress,
     contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
