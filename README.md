@@ -46,7 +46,16 @@ yarn dev
 ### Contract Addresses
 
 - Polygon Testnet (Mumbai) - [0xA29111ef1bb594f6f12e4C2b570574bEb6f39F1d](https://mumbai.polygonscan.com/address/0xa29111ef1bb594f6f12e4c2b570574beb6f39f1d#code)
+  - Get test tokens at [Polygon Facuet](https://faucet.polygon.technology/)
 
-### Frontend
+### Web Interface
 
-https://poco-dapp.on.fleek.co/
+- https://poco-dapp.on.fleek.co/
+- IPFS/IPNS - https://poco--dapp-on-fleek-co.ipns.dweb.link/
+
+## To-dos
+
+- Look for a simple **wallet app for organizations** that is open-source and non-custodial and has some of the requisite enterprise-level features such as mult-user accounts, audit logs and access control.
+- **Setup Graph Protocol** - create subgraphs to index product digital certificate data in IPFS and make it easily searchable.
+
+#### Appreciate any feedback to improve and further develop this dapp - [Twitter](https://twitter.com/sgzsh269) / [Discussions](https://github.com/poco-dapp/poco-dapp)
