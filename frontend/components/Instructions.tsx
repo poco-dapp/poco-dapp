@@ -30,8 +30,16 @@ const Instructions: FC = () => {
         </Text>
         <Text>
           The app will generate a{" "}
-          <strong>Product Digital Certificate with Universal ID (UID)</strong> that can be used to
-          search for the submitted product information.
+          <strong>Product Digital Certificate with Universal ID (UID)</strong> which can be used to
+          search for the submitted product information without requiring a wallet.
+        </Text>
+        <Text>
+          <strong>
+            The Universal ID can be shared with customers, printed on product labels as
+            text/barcode/QRcode and even be stored in embedded RFID chips{" "}
+          </strong>
+          so that anyone can easily verify the authenticity and compliance level of the product
+          using the data stored on the public blockchain.
         </Text>
         <Alert
           message={<Title level={5}>Any information submitted will be made public</Title>}
