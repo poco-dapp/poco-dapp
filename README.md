@@ -56,6 +56,6 @@ yarn dev
 ## To-dos
 
 - Look for a simple **wallet app for organizations** that is open-source and non-custodial and has some of the requisite enterprise-level features such as mult-user accounts, audit logs and access control.
-- **Setup Graph Protocol** - create subgraphs to index product digital certificate data in IPFS and make it easily searchable.
+- **Setup Graph Protocol** - create subgraphs to index the product digital certificate data in IPFS and make it easily searchable.
 
 #### Appreciate any feedback to improve and further develop this dapp - [Twitter](https://twitter.com/sgzsh269) / [Discussions](https://github.com/poco-dapp/poco-dapp)
