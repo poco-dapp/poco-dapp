@@ -4,6 +4,21 @@ type Nft @entity {
   nftUid: Bytes!
   nftUri: String!
   minterUser: User!
+  metadata: NftMetadata @derivedFrom(field: "nft")
+  createdAtTimestamp: BigInt!
+}
+
+type NftMetadata @entity {
+  id: ID!
+  organizationName: String
+  organizationBlockchainWalletAddress: String
+  organizationAddress: String
+  organizationWebsite: String
+  productName: String
+  productReferenceNum: String
+  productDescription: String
+  documentUri: String
+  nft: Nft
 }
 
 type User @entity {

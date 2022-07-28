@@ -2,6 +2,7 @@ import { create } from "ipfs-http-client";
 import { toString } from "uint8arrays/to-string";
 import filetypemime from "magic-bytes.js";
 import { downloadFileUsingBytes } from "./download-helper";
+import { ENV_DEVELOPMENT, ENV_LOCAL } from "./constants";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const toBuffer = require("it-to-buffer");
@@ -24,9 +25,9 @@ export interface NftMetadata {
 
 // TODO: Find another public gateway as Infura gateway is being deprecated
 const client = create({
-  host: "ipfs.infura.io",
+  host: process.env.NEXT_PUBLIC_ENV === ENV_LOCAL ? "localhost" : "ipfs.infura.io",
   port: 5001,
-  protocol: "https",
+  protocol: process.env.NEXT_PUBLIC_ENV === ENV_LOCAL ? "http" : "https",
 });
 
 export async function uploadMetaDataToIpfs(metadata: NftMetadata): Promise<string> {
