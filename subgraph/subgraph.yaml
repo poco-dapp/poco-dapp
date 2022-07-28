@@ -1,0 +1,25 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PocoNft
+    network: mumbai
+    source:
+      abi: PocoNft
+      address: "0xA29111ef1bb594f6f12e4C2b570574bEb6f39F1d"
+      startBlock: 27223036
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Nft
+        - User
+      abis:
+        - name: PocoNft
+          file: ./abis/PocoNft.json
+      eventHandlers:
+        - event: NftMinted(indexed address,indexed bytes17,string)
+          handler: handleNftMinted
+      file: ./src/poco-nft.ts
