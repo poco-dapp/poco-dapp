@@ -1,0 +1,12 @@
+type Nft @entity {
+  id: ID!
+  minter: Bytes!
+  nftUid: Bytes!
+  nftUri: String!
+  minterUser: User!
+}
+
+type User @entity {
+  id: ID!
+  nftsMinted: [Nft!]! @derivedFrom(field: "minterUser")
+}
