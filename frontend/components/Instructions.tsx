@@ -85,8 +85,8 @@ const Instructions: FC = () => {
                 </strong>
               </p>
               <p>
-                Ensure your wallet has enough to cover app fees ($1) and blockchain transaction fees
-                (~$0.01)
+                Ensure your wallet has enough to cover app fees ($0.05) and blockchain transaction
+                fees (~$0.01)
               </p>
             </div>
           }

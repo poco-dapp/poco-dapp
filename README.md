@@ -41,6 +41,8 @@ cp env/.env.example env/.env.local
 yarn dev
 ```
 
+### TODO: Add local graph-node and ipfs requirement using docker
+
 ## Deployments
 
 ### Contract Addresses
@@ -54,6 +56,8 @@ yarn dev
 - IPFS/IPNS - https://poco--dapp-on-fleek-co.ipns.dweb.link/
 
 ## To-dos
+
+### TODO: add alternative decentralized IPFS
 
 - Look for a simple **wallet app for organizations** that is open-source and non-custodial and has some of the requisite enterprise-level features such as mult-user accounts, audit logs and access control.
 - **Setup Graph Protocol** - create subgraphs to index the product digital certificate data in IPFS and make it easily searchable.

@@ -8,6 +8,8 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { useAccount, useContract, useProvider } from "wagmi";
 
 import { ContractInterface, Event } from "ethers";
+import { useQueryClient } from "@tanstack/react-query";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import ProductForm from "../components/ProductForm";
 import Instructions from "../components/Instructions";
 import NftRecordList, { LogEvent } from "../components/NftRecordList";
@@ -16,8 +18,11 @@ import { ChainConfigContext } from "../components/AppStateContainer";
 import { useWalletConnection } from "../utils/custom-hooks";
 import abi from "../utils/abi.json";
 import { showErrorNotification } from "../utils/error-helper";
+import { useGetNftsByUserId } from "../utils/graph-requests";
 
 const Home: NextPage = () => {
+  const queryClient = useQueryClient();
+
   const [logEvents, setLogEvents] = useState<LogEvent[]>([]);
   const [isNftRecordListLoading, setIsNftRecordListLoading] = useState(false);
   const isWalletConnected = useWalletConnection();
@@ -30,6 +35,10 @@ const Home: NextPage = () => {
     contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
   });
+
+  // const { data, isLoading, error } = useGetNftsByUserId(walletAddress);
+
+  // console.log("data", data, "isLoading", isLoading, "error", error);
 
   useEffect(() => {
     if (isWalletConnected) {
@@ -46,6 +55,7 @@ const Home: NextPage = () => {
     try {
       setIsNftRecordListLoading(true);
 
+      // TODO - can change
       const nftMintedEventFilter = pocoNftContract.filters.NftMinted(walletAddress);
 
       const events: Event[] = await pocoNftContract.queryFilter(
@@ -65,6 +75,8 @@ const Home: NextPage = () => {
       );
 
       setLogEvents([...logEvents.reverse()]);
+
+      /////
 
       const initialLoadBlockNumber = await provider.getBlockNumber();
 
@@ -142,5 +154,15 @@ const Home: NextPage = () => {
     </div>
   );
 };
+
+export async function getStaticProps() {
+  const queryClient = new QueryClient();
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
 
 export default Home;
