@@ -6,7 +6,7 @@ import React, { FC } from "react";
 import NftRecordModal from "./NftRecordModal";
 import { useNftRecordModal } from "../utils/custom-hooks";
 import { Uid } from "../utils/uid-generator";
-import { GetNftsByUserIdQuery, Nft } from "../graphql/generated";
+import { GetNftsByUserIdQuery } from "../graphql/generated";
 
 const { Text, Title } = Typography;
 

@@ -1,7 +1,7 @@
 import { Col, Row, Space } from "antd";
 import { Content, Footer } from "antd/lib/layout/layout";
 import { css } from "@emotion/react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import type { NextPage } from "next";
 
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -11,7 +11,7 @@ import { ContractInterface, Event } from "ethers";
 import { useQueryClient } from "@tanstack/react-query";
 import ProductForm from "../components/ProductForm";
 import Instructions from "../components/Instructions";
-import NftRecordList, { GraphNftMetadata, LogEvent } from "../components/NftRecordList";
+import NftRecordList from "../components/NftRecordList";
 import Navbar from "../components/Navbar";
 import { ChainConfigContext } from "../components/AppStateContainer";
 import { useWalletConnection } from "../utils/custom-hooks";
