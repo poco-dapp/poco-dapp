@@ -11,7 +11,7 @@ module.exports = {
   rules: {
     "@typescript-eslint/no-unused-vars": "error",
   },
-  ignorePatterns: ["frontend"],
+  ignorePatterns: ["frontend", "subgraph"],
   settings: {
     "import/resolver": {
       node: {

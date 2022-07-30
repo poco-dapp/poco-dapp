@@ -7,11 +7,13 @@ import JsBarcode from "jsbarcode";
 import { QRCodeCanvas } from "qrcode.react";
 import { ContractInterface } from "ethers";
 import { ChainConfigContext } from "./AppStateContainer";
-import { downloadFileFromIpfs, getMetaDataFromIpfs, NftMetadata } from "../utils/ipfs-helper";
+import { downloadFileFromIpfs } from "../utils/ipfs-helper";
 import abi from "../utils/abi.json";
 import { Uid } from "../utils/uid-generator";
 import { downloadFileUsingDataUri } from "../utils/download-helper";
 import { showErrorNotification } from "../utils/error-helper";
+import { getNftByIdWithRetry } from "../utils/graph-api";
+import { GetNftByIdQuery } from "../graphql/generated";
 
 const { Text } = Typography;
 
@@ -35,8 +37,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
   const barcodeImgRef = useRef<HTMLImageElement | null>(null);
-
-  const [nftMetadata, setNftMetadata] = useState<NftMetadata | null>(null);
+  const [nftData, setNftData] = useState<GetNftByIdQuery["nft"]>(null);
   const [downloadDocumentInProgress, setDownloadDocumentInProgress] = useState(false);
 
   const pocoNftContract = useContract({
@@ -53,10 +54,8 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const loadNft = async (uid: Uid) => {
     try {
-      setNftMetadata(null);
-      const nftUri = await pocoNftContract.getNftUriByUid(uid.toHexString());
-      const metadata = await getMetaDataFromIpfs(nftUri);
-      setNftMetadata(metadata);
+      await checkIfNftExists(uid);
+      setNftData(await getNftByIdWithRetry(uid));
       onFinishLoadingRecord();
       JsBarcode("#barcode", uid.toDisplayFormat(), {
         format: "CODE128",
@@ -69,6 +68,10 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
     }
   };
 
+  const checkIfNftExists = async (uid: Uid) => {
+    await pocoNftContract.getNftUriByUid(uid.toHexString()); // check if nft exists
+  };
+
   const handleDownloadQRCode = () => {
     const canvas: HTMLCanvasElement | null = document.querySelector(".qrCode > canvas");
     if (canvas) {
@@ -78,8 +81,8 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const handleDownloadDocument = async () => {
     setDownloadDocumentInProgress(true);
-    if (nftMetadata?.documentUri && uid) {
-      await downloadFileFromIpfs(nftMetadata.documentUri, `document_${uid.toDisplayFormat()}`);
+    if (nftData?.metadata?.documentUri && uid) {
+      await downloadFileFromIpfs(nftData.metadata.documentUri, `document_${uid.toDisplayFormat()}`);
     }
     setDownloadDocumentInProgress(false);
   };
@@ -144,30 +147,32 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
               }}
             >
               <Descriptions.Item label="Orgnaization Name">
-                {nftMetadata?.organizationName}
+                {nftData?.metadata?.organizationName}
               </Descriptions.Item>
               <Descriptions.Item label="Orgnaization Blockchain Wallet">
                 <a
-                  href={`${chainConfig.blockExplorerUrl}/address/${nftMetadata?.organizationBlockchainWalletAddress}`}
+                  href={`${chainConfig.blockExplorerUrl}/address/${nftData?.metadata?.organizationBlockchainWalletAddress}`}
                 >
-                  {nftMetadata?.organizationBlockchainWalletAddress}
+                  {nftData?.metadata?.organizationBlockchainWalletAddress}
                 </a>
               </Descriptions.Item>
               <Descriptions.Item label="Orgnaization Address">
-                {nftMetadata?.organizationAddress}
+                {nftData?.metadata?.organizationAddress}
               </Descriptions.Item>
               <Descriptions.Item label="Orgnaization Website">
-                {nftMetadata?.organizationWebsite}
+                {nftData?.metadata?.organizationWebsite}
               </Descriptions.Item>
-              <Descriptions.Item label="Product Name">{nftMetadata?.productName}</Descriptions.Item>
+              <Descriptions.Item label="Product Name">
+                {nftData?.metadata?.productName}
+              </Descriptions.Item>
               <Descriptions.Item label="Product Reference #">
-                {nftMetadata?.productReferenceNum}
+                {nftData?.metadata?.productReferenceNum}
               </Descriptions.Item>
               <Descriptions.Item label="Product Description">
-                {nftMetadata?.productDescription}
+                {nftData?.metadata?.productDescription}
               </Descriptions.Item>
               <Descriptions.Item label="Document">
-                {nftMetadata?.documentUri && (
+                {nftData?.metadata?.documentUri && (
                   <Button
                     type="primary"
                     onClick={handleDownloadDocument}

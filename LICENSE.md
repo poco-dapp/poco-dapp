@@ -1,4 +1,4 @@
-https://faircode.io/
+From: https://faircode.io/
 
 # Sustainable Use License
 

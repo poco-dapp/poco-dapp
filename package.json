@@ -36,7 +36,8 @@
     "solidity-coverage": "^0.7.16",
     "ts-node": "^10.1.0",
     "typechain": "^5.1.2",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "husky": "^8.0.0"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.4.1",
@@ -49,8 +50,11 @@
     "lint-ts": "eslint .",
     "lint-sol": "solhint 'contracts/*.sol'",
     "lint-sol:fix": "solhint 'contracts/**/*.sol' --fix",
+    "lint-frontend": "cd frontend && yarn lint",
+    "lint-all": "yarn lint-ts && yarn lint-sol && yarn lint-frontend",
     "format": "prettier --write .",
     "coverage": "hardhat coverage",
-    "typechain": "yarn hardhat typechain"
+    "typechain": "yarn hardhat typechain",
+    "prepare": "husky install"
   }
 }

@@ -11,6 +11,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { ConfigProvider } from "antd";
 import React from "react";
 import { css, Global } from "@emotion/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ENV_DEVELOPMENT, PRIMARY_COLOR } from "../utils/constants";
 import AppStateContainer from "../components/AppStateContainer";
 
@@ -57,6 +58,8 @@ const wagmiClient = createClient({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [queryClient] = React.useState(() => new QueryClient());
+
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider theme={lightTheme({ accentColor: PRIMARY_COLOR })} chains={chains}>
@@ -71,7 +74,9 @@ function MyApp({ Component, pageProps }: AppProps) {
             <link rel="icon" type="image/x-icon" href="/favicon.ico"></link>
           </Head>
           <AppStateContainer>
-            <Component {...pageProps} />
+            <QueryClientProvider client={queryClient}>
+              <Component {...pageProps} />
+            </QueryClientProvider>
           </AppStateContainer>
         </div>
       </RainbowKitProvider>

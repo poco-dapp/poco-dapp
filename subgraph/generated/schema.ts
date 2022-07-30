@@ -77,6 +77,220 @@ export class Nft extends Entity {
   set minterUser(value: string) {
     this.set("minterUser", Value.fromString(value));
   }
+
+  get metadata(): string | null {
+    let value = this.get("metadata");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set metadata(value: string | null) {
+    if (!value) {
+      this.unset("metadata");
+    } else {
+      this.set("metadata", Value.fromString(<string>value));
+    }
+  }
+
+  get createdAtTimestamp(): BigInt {
+    let value = this.get("createdAtTimestamp");
+    return value!.toBigInt();
+  }
+
+  set createdAtTimestamp(value: BigInt) {
+    this.set("createdAtTimestamp", Value.fromBigInt(value));
+  }
+}
+
+export class NftMetadata extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save NftMetadata entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type NftMetadata must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("NftMetadata", id.toString(), this);
+    }
+  }
+
+  static load(id: string): NftMetadata | null {
+    return changetype<NftMetadata | null>(store.get("NftMetadata", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get organizationName(): string | null {
+    let value = this.get("organizationName");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set organizationName(value: string | null) {
+    if (!value) {
+      this.unset("organizationName");
+    } else {
+      this.set("organizationName", Value.fromString(<string>value));
+    }
+  }
+
+  get organizationBlockchainWalletAddress(): string | null {
+    let value = this.get("organizationBlockchainWalletAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set organizationBlockchainWalletAddress(value: string | null) {
+    if (!value) {
+      this.unset("organizationBlockchainWalletAddress");
+    } else {
+      this.set(
+        "organizationBlockchainWalletAddress",
+        Value.fromString(<string>value)
+      );
+    }
+  }
+
+  get organizationAddress(): string | null {
+    let value = this.get("organizationAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set organizationAddress(value: string | null) {
+    if (!value) {
+      this.unset("organizationAddress");
+    } else {
+      this.set("organizationAddress", Value.fromString(<string>value));
+    }
+  }
+
+  get organizationWebsite(): string | null {
+    let value = this.get("organizationWebsite");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set organizationWebsite(value: string | null) {
+    if (!value) {
+      this.unset("organizationWebsite");
+    } else {
+      this.set("organizationWebsite", Value.fromString(<string>value));
+    }
+  }
+
+  get productName(): string | null {
+    let value = this.get("productName");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set productName(value: string | null) {
+    if (!value) {
+      this.unset("productName");
+    } else {
+      this.set("productName", Value.fromString(<string>value));
+    }
+  }
+
+  get productReferenceNum(): string | null {
+    let value = this.get("productReferenceNum");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set productReferenceNum(value: string | null) {
+    if (!value) {
+      this.unset("productReferenceNum");
+    } else {
+      this.set("productReferenceNum", Value.fromString(<string>value));
+    }
+  }
+
+  get productDescription(): string | null {
+    let value = this.get("productDescription");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set productDescription(value: string | null) {
+    if (!value) {
+      this.unset("productDescription");
+    } else {
+      this.set("productDescription", Value.fromString(<string>value));
+    }
+  }
+
+  get documentUri(): string | null {
+    let value = this.get("documentUri");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set documentUri(value: string | null) {
+    if (!value) {
+      this.unset("documentUri");
+    } else {
+      this.set("documentUri", Value.fromString(<string>value));
+    }
+  }
+
+  get nft(): string | null {
+    let value = this.get("nft");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nft(value: string | null) {
+    if (!value) {
+      this.unset("nft");
+    } else {
+      this.set("nft", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class User extends Entity {

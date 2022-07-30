@@ -5,16 +5,22 @@
   "scripts": {
     "dev": "env-cmd -f ./env/.env.local next dev",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "tsc --noEmit && next lint",
     "build:local": "env-cmd -f ./env/.env.local next build",
-    "build:development": "env-cmd -f ./env/.env.development next build"
+    "build:development": "env-cmd -f ./env/.env.development next build",
+    "generate": "graphql-codegen --config codegen.yml",
+    "prestart": "yarn generate",
+    "predev": "yarn generate"
   },
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@rainbow-me/rainbowkit": "^0.4.2",
+    "@tanstack/react-query": "^4.0.10",
     "antd": "^4.21.5",
     "ethers": "^5.6.9",
+    "graphql": "^16.5.0",
+    "graphql-request": "^4.3.0",
     "ipfs-http-client": "^57.0.3",
     "it-to-browser-readablestream": "^1.0.4",
     "it-to-buffer": "^2.0.2",
@@ -29,6 +35,12 @@
     "wagmi": "^0.5.9"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "2.11.3",
+    "@graphql-codegen/introspection": "2.2.0",
+    "@graphql-codegen/typescript": "2.7.2",
+    "@graphql-codegen/typescript-graphql-request": "^4.5.2",
+    "@graphql-codegen/typescript-operations": "2.5.2",
+    "@graphql-codegen/typescript-react-query": "^4.0.0",
     "@types/node": "18.0.1",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",

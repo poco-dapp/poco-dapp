@@ -41,6 +41,26 @@ cp env/.env.example env/.env.local
 yarn dev
 ```
 
+### Setup local Graph and IPFS nodes
+
+```
+# Clone the graph-node
+git clone git@github.com:graphprotocol/graph-node.git
+
+# Run the dockerized Graph and IPFS nodes
+cd docker && docker-compose up -d
+```
+
+Note: To setup the CORS headers for local IPFS node, follow [this solution](https://stackoverflow.com/questions/42708251/how-to-do-cross-origin-requests-on-ipfs)
+
+```
+# Update IPFS config
+docker-compose exec ipfs ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
+
+# Restart IPFS node
+docker-compose restart ipfs
+```
+
 ## Deployments
 
 ### Contract Addresses
@@ -55,7 +75,6 @@ yarn dev
 
 ## To-dos
 
-- Look for a simple **wallet app for organizations** that is open-source and non-custodial and has some of the requisite enterprise-level features such as mult-user accounts, audit logs and access control.
-- **Setup Graph Protocol** - create subgraphs to index the product digital certificate data in IPFS and make it easily searchable.
+- Look for a simple wallet app for organizations to allow them to easily use this dapp. Ideally, the wallet app should be open-source and non-custodial and have some of the requisite enterprise-level features such as mult-user accounts, audit logs and access control.
 
 #### Appreciate any feedback to improve and further develop this dapp - [Twitter](https://twitter.com/sgzsh269) / [Discussions](https://github.com/poco-dapp/poco-dapp)
