@@ -10,26 +10,20 @@ import { Uid } from "../utils/uid-generator";
 const { Text, Title } = Typography;
 
 export interface NftRecordListProps {
-  logEvents: LogEvent[];
   loading: boolean;
+  graphNftDataList: Record<string, unknown>[];
 }
+
 export interface LogEvent {
   event: ethers.Event;
   block: ethers.providers.Block;
 }
 
-const ListItem: FC<{ logEvent: LogEvent; onNftUidClick: (uid: Uid) => void }> = ({
-  logEvent,
-  onNftUidClick,
-}) => {
-  const localTime = moment.unix(logEvent.block.timestamp).local().format("MMM DD, YY - hh:mm A");
+const ListItem: FC<{ nft: any; onNftUidClick: (uid: Uid) => void }> = ({ nft, onNftUidClick }) => {
+  const localTime = moment.unix(nft.createdAtTimestamp).local().format("MMM DD, YY - hh:mm A");
 
-  let uidForDisplay;
-  let uid: Uid;
-  if (logEvent.event.args) {
-    uid = Uid.parse(logEvent.event.args.nftUid);
-    uidForDisplay = uid.toDisplayFormat();
-  }
+  const uid = Uid.parse(nft.id);
+  const uidForDisplay = uid.toDisplayFormat();
 
   return (
     <List.Item>
@@ -51,7 +45,7 @@ const ListItem: FC<{ logEvent: LogEvent; onNftUidClick: (uid: Uid) => void }> = 
   );
 };
 
-const NftRecordList: FC<NftRecordListProps> = ({ logEvents, loading }) => {
+const NftRecordList: FC<NftRecordListProps> = ({ graphNftDataList, loading }) => {
   const {
     uid,
     isModalVisible,
@@ -62,7 +56,7 @@ const NftRecordList: FC<NftRecordListProps> = ({ logEvents, loading }) => {
     launchModalWithUid,
   } = useNftRecordModal();
 
-  const handleListItemClick = (uid: Uid) => {
+  const handleNftUidClick = (uid: Uid) => {
     launchModalWithUid(uid);
   };
 
@@ -72,14 +66,10 @@ const NftRecordList: FC<NftRecordListProps> = ({ logEvents, loading }) => {
         size="large"
         header={<Title level={5}>Product Digital Certificates</Title>}
         bordered
-        dataSource={logEvents}
+        dataSource={graphNftDataList}
         loading={loading}
         renderItem={(item) => (
-          <ListItem
-            key={item.event.transactionHash}
-            logEvent={item}
-            onNftUidClick={handleListItemClick}
-          />
+          <ListItem key={item.id} nft={item} onNftUidClick={handleNftUidClick} />
         )}
       />
       <NftRecordModal

@@ -11,7 +11,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { ConfigProvider } from "antd";
 import React from "react";
 import { css, Global } from "@emotion/react";
-import { QueryClient, QueryClientProvider, Hydrate } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ENV_DEVELOPMENT, PRIMARY_COLOR } from "../utils/constants";
 import AppStateContainer from "../components/AppStateContainer";
 
@@ -75,9 +75,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           </Head>
           <AppStateContainer>
             <QueryClientProvider client={queryClient}>
-              <Hydrate state={pageProps.dehydratedState}>
-                <Component {...pageProps} />
-              </Hydrate>
+              <Component {...pageProps} />
             </QueryClientProvider>
           </AppStateContainer>
         </div>

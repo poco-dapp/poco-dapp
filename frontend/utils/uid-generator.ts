@@ -48,10 +48,10 @@ export class Uid {
   }
 
   toHexString(): string {
-    return `0x${this.uid}`;
+    return `0x${this.uid.toLowerCase()}`;
   }
 
   toString(): string {
-    return this.uid;
+    return this.uid.toLowerCase();
   }
 }

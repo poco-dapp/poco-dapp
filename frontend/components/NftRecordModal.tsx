@@ -12,6 +12,7 @@ import abi from "../utils/abi.json";
 import { Uid } from "../utils/uid-generator";
 import { downloadFileUsingDataUri } from "../utils/download-helper";
 import { showErrorNotification } from "../utils/error-helper";
+import { getNftById, getNftByIdWithRetry, useGetNftById } from "../utils/graph-api";
 
 const { Text } = Typography;
 
@@ -54,9 +55,10 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   const loadNft = async (uid: Uid) => {
     try {
       setNftMetadata(null);
-      const nftUri = await pocoNftContract.getNftUriByUid(uid.toHexString());
-      const metadata = await getMetaDataFromIpfs(nftUri);
-      setNftMetadata(metadata);
+      await checkIfNftExists(uid);
+      const nftData = await getNftByIdWithRetry(uid);
+      // if nftdata null retry as there will be a delay in indexing
+      populateNftMetadata(nftData);
       onFinishLoadingRecord();
       JsBarcode("#barcode", uid.toDisplayFormat(), {
         format: "CODE128",
@@ -67,6 +69,34 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
       onFinishLoadingRecord();
       onCancel();
     }
+  };
+
+  const checkIfNftExists = async (uid: Uid) => {
+    await pocoNftContract.getNftUriByUid(uid.toHexString()); // check if nft exists
+  };
+
+  const populateNftMetadata = (nftData: Record<string, unknown>) => {
+    if (!nftData) {
+      setNftMetadata(null);
+    }
+
+    const nftMetadata: NftMetadata = {
+      uid: nftData.id,
+    };
+
+    if (nftData.metadata) {
+      nftMetadata.organizationName = nftData.metadata.organizationName;
+      nftMetadata.organizationBlockchainWalletAddress =
+        nftData.metadata.organizationBlockchainWalletAddress;
+      nftMetadata.organizationAddress = nftData.metadata.organizationAddress;
+      nftMetadata.organizationWebsite = nftData.metadata.organizationWebsite;
+      nftMetadata.productName = nftData.metadata.productName;
+      nftMetadata.productReferenceNum = nftData.metadata.productReferenceNum;
+      nftMetadata.productDescription = nftData.metadata.productDescription;
+      nftMetadata.documentUri = nftData.metadata.documentUri;
+    }
+
+    setNftMetadata(nftMetadata);
   };
 
   const handleDownloadQRCode = () => {
