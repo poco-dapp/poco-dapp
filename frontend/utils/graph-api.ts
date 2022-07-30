@@ -3,6 +3,7 @@ import { GraphQLClient, gql } from "graphql-request";
 import { SUBGRAPH_API_URL } from "./constants";
 import { sleep } from "./misc";
 import { Uid } from "./uid-generator";
+import { Nft, getSdk, GetNftByIdQuery } from "../graphql/generated";
 
 const graphQLClient = new GraphQLClient(SUBGRAPH_API_URL, {});
 
@@ -50,9 +51,9 @@ export const useGetNftsByUserId = (userId: string | undefined) => {
     if (!normalizedUserId) {
       return [];
     }
-    const { user } = await graphQLClient.request(GET_NFTS_BY_USER_ID, {
-      userId: normalizedUserId,
-    });
+
+    const { user } = await getSdk(graphQLClient).getNftsByUserId({ userId: normalizedUserId });
+
     return user ? user.nftsMinted : [];
   });
 };
@@ -62,19 +63,20 @@ export const getNftById = async (uid: Uid | null) => {
     return null;
   }
 
-  const { nft } = await graphQLClient.request(GET_NFT_BY_ID, {
-    nftId: uid.toHexString(),
-  });
+  const { nft } = await getSdk(graphQLClient).getNftById({ nftId: uid.toHexString() });
 
   return nft;
 };
 
+/**
+ * If nftdata is null, retry for sometime as there could be a delay in indexing at the Graph protocol
+ */
 export const getNftByIdWithRetry = async (uid: Uid | null) => {
   if (!uid) {
     return null;
   }
 
-  let nft: Record<string, unknown>;
+  let nft: GetNftByIdQuery["nft"];
   for (let i = 0; i < 6; i++) {
     nft = await getNftById(uid);
     if (nft) {

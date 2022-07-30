@@ -1,0 +1,28 @@
+query getNftsByUserId($userId: ID!) {
+  user(id: $userId) {
+    nftsMinted(orderBy: createdAtTimestamp, orderDirection: desc) {
+      ...NftFields
+    }
+  }
+}
+
+query getNftById($nftId: ID!) {
+  nft(id: $nftId) {
+    ...NftFields
+  }
+}
+
+fragment NftFields on Nft {
+  id
+  createdAtTimestamp
+  metadata {
+    organizationName
+    organizationBlockchainWalletAddress
+    organizationAddress
+    organizationWebsite
+    productName
+    productReferenceNum
+    productDescription
+    documentUri
+  }
+}

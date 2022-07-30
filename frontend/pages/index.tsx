@@ -20,8 +20,6 @@ import { showErrorNotification } from "../utils/error-helper";
 import { useGetNftsByUserId } from "../utils/graph-api";
 
 const Home: NextPage = () => {
-  const [logEvents, setLogEvents] = useState<LogEvent[]>([]);
-  const [isNftRecordListLoading, setIsNftRecordListLoading] = useState(false);
   const isWalletConnected = useWalletConnection();
   const chainConfig = useContext(ChainConfigContext);
   const provider = useProvider();
@@ -49,6 +47,12 @@ const Home: NextPage = () => {
     };
   }, [walletAddress]);
 
+  useEffect(() => {
+    if (error) {
+      showErrorNotification("Fetch Error", JSON.stringify(error));
+    }
+  }, [error]);
+
   const subscribeNftMintedEvent = async () => {
     const initialLoadBlockNumber = await provider.getBlockNumber();
 
@@ -61,10 +65,6 @@ const Home: NextPage = () => {
           // Ignore old blocks;
           return;
         }
-
-        const block = await provider.getBlock(event.blockNumber);
-
-        setLogEvents((oldLogEvents) => [{ event, block }, ...oldLogEvents]);
 
         queryClient.invalidateQueries();
       }

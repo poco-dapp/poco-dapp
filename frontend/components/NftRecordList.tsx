@@ -6,12 +6,13 @@ import React, { FC } from "react";
 import NftRecordModal from "./NftRecordModal";
 import { useNftRecordModal } from "../utils/custom-hooks";
 import { Uid } from "../utils/uid-generator";
+import { GetNftsByUserIdQuery, Nft } from "../graphql/generated";
 
 const { Text, Title } = Typography;
 
 export interface NftRecordListProps {
   loading: boolean;
-  graphNftDataList: Record<string, unknown>[];
+  graphNftDataList: NonNullable<GetNftsByUserIdQuery["user"]>["nftsMinted"] | undefined;
 }
 
 export interface LogEvent {
