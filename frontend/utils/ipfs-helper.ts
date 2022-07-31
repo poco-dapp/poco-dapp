@@ -2,7 +2,7 @@ import { CID, create } from "ipfs-http-client";
 import { toString } from "uint8arrays/to-string";
 import filetypemime from "magic-bytes.js";
 import { downloadFileUsingBytes } from "./download-helper";
-import { ENV_DEVELOPMENT, ENV_LOCAL, isLocalEnv } from "./constants";
+import { isLocalEnv } from "./constants";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const toBuffer = require("it-to-buffer");

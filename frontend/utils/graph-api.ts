@@ -1,48 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { GraphQLClient, gql } from "graphql-request";
+import { GraphQLClient } from "graphql-request";
 import { SUBGRAPH_API_URL } from "./constants";
 import { sleep } from "./misc";
 import { Uid } from "./uid-generator";
-import { Nft, getSdk, GetNftByIdQuery } from "../graphql/generated";
+import { getSdk, GetNftByIdQuery } from "../graphql/generated";
 
 const graphQLClient = new GraphQLClient(SUBGRAPH_API_URL, {});
-
-const NFT_FRAGMENT = gql`
-  fragment NftFields on Nft {
-    id
-    createdAtTimestamp
-    metadata {
-      organizationName
-      organizationBlockchainWalletAddress
-      organizationAddress
-      organizationWebsite
-      productName
-      productReferenceNum
-      productDescription
-      documentUri
-    }
-  }
-`;
-
-const GET_NFTS_BY_USER_ID = gql`
-  query getNftsByUserId($userId: ID!) {
-    user(id: $userId) {
-      nftsMinted(orderBy: createdAtTimestamp, orderDirection: desc) {
-        ...NftFields
-      }
-    }
-  }
-  ${NFT_FRAGMENT}
-`;
-
-const GET_NFT_BY_ID = gql`
-  query getNftById($nftId: ID!) {
-    nft(id: $nftId) {
-      ...NftFields
-    }
-  }
-  ${NFT_FRAGMENT}
-`;
 
 export const useGetNftsByUserId = (userId: string | undefined) => {
   const normalizedUserId = userId && userId.toLowerCase();
