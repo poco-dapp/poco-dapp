@@ -77,7 +77,7 @@ export const getNftByIdWithRetry = async (uid: Uid | null) => {
   }
 
   let nft: GetNftByIdQuery["nft"];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 12; i++) {
     nft = await getNftById(uid);
     if (nft) {
       return nft;

@@ -7,11 +7,10 @@ features:
 dataSources:
   - kind: ethereum
     name: PocoNft
-    network: mumbai
+    network: mainnet
     source:
       abi: PocoNft
-      address: "0xA29111ef1bb594f6f12e4C2b570574bEb6f39F1d"
-      startBlock: 27223036
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

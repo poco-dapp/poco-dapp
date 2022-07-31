@@ -55,12 +55,12 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   const loadNft = async (uid: Uid) => {
     try {
       await checkIfNftExists(uid);
-      setNftData(await getNftByIdWithRetry(uid));
-      onFinishLoadingRecord();
       JsBarcode("#barcode", uid.toDisplayFormat(), {
         format: "CODE128",
         width: 1,
       });
+      setNftData(await getNftByIdWithRetry(uid));
+      onFinishLoadingRecord();
     } catch (err) {
       showErrorNotification("Search Error", err as Error);
       onFinishLoadingRecord();
