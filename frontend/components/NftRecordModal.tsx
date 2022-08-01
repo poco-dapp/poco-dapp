@@ -54,6 +54,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const loadNft = async (uid: Uid) => {
     try {
+      setNftData(null);
       await checkIfNftExists(uid);
       JsBarcode("#barcode", uid.toDisplayFormat(), {
         format: "CODE128",
@@ -69,7 +70,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   };
 
   const checkIfNftExists = async (uid: Uid) => {
-    await pocoNftContract.getNftUriByUid(uid.toHexString()); // check if nft exists
+    await pocoNftContract.getNftUriByUid(uid.toHexString());
   };
 
   const handleDownloadQRCode = () => {
