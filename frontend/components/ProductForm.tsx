@@ -87,7 +87,7 @@ const ProductForm: FC = () => {
           args: [uid.toHexString(), metadataUri],
           overrides: {
             value: ethers.utils.parseEther(String(appFeesInMatic)),
-            gasLimit: 3785823,
+            gasLimit: 300000,
           },
         });
       }
