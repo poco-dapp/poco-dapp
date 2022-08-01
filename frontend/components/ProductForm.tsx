@@ -16,6 +16,7 @@ import abi from "../utils/abi.json";
 import { useNftRecordModal, useWalletConnection } from "../utils/custom-hooks";
 import { showErrorNotification } from "../utils/error-helper";
 import { isValidFile } from "../utils/file-helper";
+import { PocoNft } from "../typechain";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -51,7 +52,7 @@ const ProductForm: FC = () => {
     },
   });
 
-  const pocoNftContract = useContract({
+  const pocoNftContract = useContract<PocoNft>({
     addressOrName: chainConfig?.contractAddress,
     contractInterface: abi as ContractInterface,
     signerOrProvider: provider,
@@ -81,7 +82,7 @@ const ProductForm: FC = () => {
       const metadataUri = await uploadMetaDataToIpfs(metadata);
 
       if (chain) {
-        const appFeesInMatic = await getAppFeesInMatic(chain.id);
+        const appFeesInMatic = await getAppFeesInMatic(pocoNftContract);
 
         await contractWrite.writeAsync({
           args: [uid.toHexString(), metadataUri],
