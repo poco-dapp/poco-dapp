@@ -31,15 +31,13 @@ async function updateTsBindings() {
   const cwd = process.cwd();
   const allFiles = glob(cwd, [`./artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json`]);
 
-  const result = await runTypeChain({
+  await runTypeChain({
     cwd,
     filesToProcess: allFiles,
     allFiles,
     outDir: "./frontend/typechain",
     target: "ethers-v5",
   });
-
-  console.log("result", result);
 }
 
 func.tags = ["frontend", "testnet"];
