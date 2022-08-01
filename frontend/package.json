@@ -7,7 +7,7 @@
     "start": "next start",
     "lint": "tsc --noEmit && next lint --dir .",
     "build:local": "env-cmd -f ./env/.env.local next build",
-    "build:development": "env-cmd -f ./env/.env.development yarn typechain && next build",
+    "build:development": "env-cmd -f ./env/.env.development next build",
     "generate": "graphql-codegen --config codegen.yml",
     "prestart": "yarn generate",
     "predev": "yarn generate"
