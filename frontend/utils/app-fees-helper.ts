@@ -1,5 +1,4 @@
-import { BigNumber, ethers } from "ethers";
-import { HARDHAT_LOCALHOST_CHAIN_ID } from "./constants";
+import { ethers } from "ethers";
 import { PocoNft } from "../typechain";
 
 const APP_FEES_USD = 0.05;
