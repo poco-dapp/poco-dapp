@@ -1,15 +1,14 @@
 import fs from "fs";
-
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-
 import { DeployFunction } from "hardhat-deploy/types";
-
 import { frontEndContractsFile, frontEndAbiFile } from "../helper-hardhat-config";
+import { runTypeChain, glob } from "typechain";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("Writing to front end...");
   await updateContractAddresses(hre);
   await updateAbi(hre);
+  await updateTsBindings();
   console.log("Front end written!");
 };
 
@@ -27,6 +26,20 @@ async function updateContractAddresses(hre: HardhatRuntimeEnvironment) {
   chainsConfig[chainId].contractAddress = pocoNft.address;
   fs.writeFileSync(frontEndContractsFile, JSON.stringify(chainsConfig));
 }
+
+async function updateTsBindings() {
+  const cwd = process.cwd();
+  const allFiles = glob(cwd, [`./artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json`]);
+
+  await runTypeChain({
+    cwd,
+    filesToProcess: allFiles,
+    allFiles,
+    outDir: "./frontend/typechain",
+    target: "ethers-v5",
+  });
+}
+
 func.tags = ["frontend", "testnet"];
 
 export default func;

@@ -10,11 +10,11 @@
       { "groups": ["external", "builtin", "internal", "sibling", "parent", "index"] }
     ]
   },
+  "ignorePatterns": ["graphql"],
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [".ts", ".tsx"],
-        "moduleDirectory": ["src", "node_modules"]
+        "extensions": [".ts", ".tsx"]
       }
     }
   }

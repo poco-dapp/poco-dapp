@@ -1,8 +1,8 @@
-import { create } from "ipfs-http-client";
+import { CID, create } from "ipfs-http-client";
 import { toString } from "uint8arrays/to-string";
 import filetypemime from "magic-bytes.js";
 import { downloadFileUsingBytes } from "./download-helper";
-import { ENV_DEVELOPMENT, ENV_LOCAL } from "./constants";
+import { isLocalEnv } from "./constants";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const toBuffer = require("it-to-buffer");
@@ -23,21 +23,18 @@ export interface NftMetadata {
   documentUri: string | null;
 }
 
-// TODO: Find another public gateway as Infura gateway is being deprecated
 const client = create({
-  host: process.env.NEXT_PUBLIC_ENV === ENV_LOCAL ? "localhost" : "ipfs.infura.io",
-  port: 5001,
-  protocol: process.env.NEXT_PUBLIC_ENV === ENV_LOCAL ? "http" : "https",
+  url: isLocalEnv ? "http://localhost:5001" : "https://api.thegraph.com/ipfs/api/v0/",
 });
 
 export async function uploadMetaDataToIpfs(metadata: NftMetadata): Promise<string> {
   const results = await client.add(JSON.stringify(metadata));
-  return `${IPFS_URI_PREFIX}${results.cid.toV1().toString()}`;
+  return pinCid(results.cid);
 }
 
 export async function uploadFileToIpfs(file: File): Promise<string> {
   const results = await client.add(file);
-  return `${IPFS_URI_PREFIX}${results.cid.toV1().toString()}`;
+  return pinCid(results.cid);
 }
 
 export async function getMetaDataFromIpfs(ipfsCid: string): Promise<NftMetadata> {
@@ -63,4 +60,9 @@ export async function downloadFileFromIpfs(ipfsCid: string, name: string): Promi
 async function getFileFromIpfs(ipfsCid: string): Promise<Uint8Array> {
   const normalizedCid = ipfsCid.replace("ipfs://", "");
   return toBuffer(client.cat(normalizedCid));
+}
+
+async function pinCid(cid: CID): Promise<string> {
+  const pinnedCid = await client.pin.add(cid);
+  return `${IPFS_URI_PREFIX}${pinnedCid.toV1().toString()}`;
 }

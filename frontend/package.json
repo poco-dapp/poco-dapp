@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "env-cmd -f ./env/.env.local next dev",
     "start": "next start",
-    "lint": "tsc --noEmit && next lint",
+    "lint": "tsc --noEmit && next lint --dir .",
     "build:local": "env-cmd -f ./env/.env.local next build",
     "build:development": "env-cmd -f ./env/.env.development next build",
     "generate": "graphql-codegen --config codegen.yml",

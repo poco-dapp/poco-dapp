@@ -54,13 +54,14 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
 
   const loadNft = async (uid: Uid) => {
     try {
+      setNftData(null);
       await checkIfNftExists(uid);
-      setNftData(await getNftByIdWithRetry(uid));
-      onFinishLoadingRecord();
       JsBarcode("#barcode", uid.toDisplayFormat(), {
         format: "CODE128",
         width: 1,
       });
+      setNftData(await getNftByIdWithRetry(uid));
+      onFinishLoadingRecord();
     } catch (err) {
       showErrorNotification("Search Error", err as Error);
       onFinishLoadingRecord();
@@ -69,7 +70,7 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
   };
 
   const checkIfNftExists = async (uid: Uid) => {
-    await pocoNftContract.getNftUriByUid(uid.toHexString()); // check if nft exists
+    await pocoNftContract.getNftUriByUid(uid.toHexString());
   };
 
   const handleDownloadQRCode = () => {
