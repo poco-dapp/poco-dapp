@@ -8,7 +8,6 @@ import { Header } from "antd/lib/layout/layout";
 import { SearchOutlined, WalletOutlined } from "@ant-design/icons";
 import NftRecordModal from "./NftRecordModal";
 import { Uid } from "../utils/uid-generator";
-import { PRIMARY_COLOR } from "../utils/constants";
 import { useNftRecordModal } from "../utils/custom-hooks";
 
 const { Title } = Typography;
