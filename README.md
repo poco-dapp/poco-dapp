@@ -1,11 +1,20 @@
 # POCO Dapp
 
-POCO is a **decentralized app** to store
-**Proof of Certification and Ownership information**, as ERC-721 NFTs, for
-**physical products** to combat counterfeiting and facilitate traceability.
+POCO is a public blockchain app to transparently store product attributes information in order to facilitate authentication, compliance check and traceability of physical products.
 
 Since the app uses a public blockchain and filesystem - [Polygon](https://polygonscan.com/) and [IPFS](https://ipfs.io/), all product information and documents submitted will always be available without
 restriction.
+
+## Stack
+
+- [Polygon](https://polygon.technology/)
+- [Hardhat](https://hardhat.org/)
+- [The Graph Protocol](https://thegraph.com/en/)
+- [IPFS](https://ipfs.tech/)
+- [NextJS](https://nextjs.org/)
+- [EthersJS](https://docs.ethers.io/v5/)
+- [RainbowKit](https://www.rainbowkit.com/docs/installation)
+- [wagmi](https://wagmi.sh/)
 
 ## Local Setup
 

@@ -38,9 +38,9 @@ const Navbar: FC = () => {
   return (
     <Header
       css={css`
-        background: white;
+        background: inherit;
         display: flex;
-        padding: 8px;
+        padding: ${screens.lg ? "16px 64px 0 64px" : "0 0 0 0"};
         justify-content: space-between;
       `}
     >
@@ -48,7 +48,7 @@ const Navbar: FC = () => {
         <Title
           css={css`
             &.ant-typography {
-              color: ${PRIMARY_COLOR};
+              color: #1b1a52;
             }
           `}
           level={2}

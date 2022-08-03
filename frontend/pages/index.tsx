@@ -87,7 +87,7 @@ const Home: NextPage = () => {
         `}
       >
         <Row justify="space-evenly">
-          <Col lg={{ span: 6 }}>
+          <Col sm={{ span: 24 }} lg={{ span: 8 }}>
             <Instructions />
           </Col>
           <Col lg={{ span: 6 }}>
@@ -100,7 +100,11 @@ const Home: NextPage = () => {
           )}
         </Row>
       </Content>
-      <Footer>
+      <Footer
+        css={css`
+          background: inherit;
+        `}
+      >
         <Space
           css={css`
             padding-bottom: 48px;
