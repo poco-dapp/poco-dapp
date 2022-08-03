@@ -1,13 +1,42 @@
-import React, { FC } from "react";
-import { Space, Typography, Steps, Alert } from "antd";
+import React, { FC, useContext, useEffect, useState } from "react";
+import { Space, Typography, Steps, Alert, Card } from "antd";
 import { css } from "@emotion/react";
+import { useContract, useProvider } from "wagmi";
+import { ContractInterface } from "ethers";
+import { ChainConfigContext } from "./AppStateContainer";
+import { isDevEnv, isLocalEnv } from "../utils/constants";
+import { PocoNft } from "../typechain";
+import { getAppFeesInMatic } from "../utils/app-fees-helper";
+import abi from "../utils/abi.json";
 
-const { Text, Title } = Typography;
+const { Text, Title, Link } = Typography;
 const { Step } = Steps;
 
 const Instructions: FC = () => {
+  const chainConfig = useContext(ChainConfigContext);
+  const provider = useProvider();
+  const [appFees, setAppFees] = useState("... MATIC");
+
+  const pocoNftContract = useContract<PocoNft>({
+    addressOrName: chainConfig.contractAddress,
+    contractInterface: abi as ContractInterface,
+    signerOrProvider: provider,
+  });
+
+  useEffect(() => {
+    const getAppFees = async () => {
+      const result = await getAppFeesInMatic(pocoNftContract);
+      setAppFees(`${result} MATIC`);
+    };
+    getAppFees();
+  });
+
   return (
-    <div>
+    <Card
+      css={css`
+        padding: 12px;
+      `}
+    >
       <Space
         direction="vertical"
         css={css`
@@ -15,9 +44,9 @@ const Instructions: FC = () => {
         `}
       >
         <Text>
-          POCO is a <strong>decentralized app</strong> to store{" "}
-          <strong>Proof of Certification and Ownership information</strong> for{" "}
-          <strong>physical products</strong> to combat counterfeiting and facilitate traceability.
+          POCO is a <strong>public blockchain app</strong> to transparently store product attributes
+          information in order to facilitate{" "}
+          <strong>authentication, compliance check and traceability of physical products.</strong>
         </Text>
         <Text>
           Since the app uses a{" "}
@@ -81,13 +110,20 @@ const Instructions: FC = () => {
               <p>Ensure you are connected to the Polygon blockchain.</p>
               <p>
                 <strong>
-                  For each form submission, the app charges $0.05 fee in Polygon&apos;s MATIC token.
+                  For each form submission, the app charges $0.05 fee in Polygon&apos;s MATIC token
+                  <br />({appFees})
                 </strong>
               </p>
               <p>
-                Ensure your wallet has enough to cover app fees ($0.05) and blockchain transaction
-                fees (~$0.01)
+                Ensure your wallet has enough to cover app fees ({appFees}) and blockchain
+                transaction fees (~0.0068 MATIC)
               </p>
+              {(isDevEnv || isLocalEnv) && (
+                <strong>
+                  For testing, get tokens from{" "}
+                  <Link href="https://faucet.polygon.technology/">Polygon faucet</Link>
+                </strong>
+              )}
             </div>
           }
         />
@@ -107,7 +143,7 @@ const Instructions: FC = () => {
           description="A user/customer can then use the UID to view the product information with any associated certificate of authenticity, compliance, inspection etc."
         />
       </Steps>
-    </div>
+    </Card>
   );
 };
 

@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { Button, List, Space, Typography } from "antd";
+import { Button, Card, List, Space, Typography } from "antd";
 import * as ethers from "ethers";
 import moment from "moment";
 import React, { FC } from "react";
@@ -62,11 +62,10 @@ const NftRecordList: FC<NftRecordListProps> = ({ graphNftDataList, loading }) =>
   };
 
   return (
-    <>
+    <Card>
       <List
         size="large"
         header={<Title level={5}>Product Digital Certificates</Title>}
-        bordered
         dataSource={graphNftDataList}
         loading={loading}
         renderItem={(item) => (
@@ -81,7 +80,7 @@ const NftRecordList: FC<NftRecordListProps> = ({ graphNftDataList, loading }) =>
         isLoadingRecord={isLoadingNftRecord}
         onFinishLoadingRecord={handleFinishLoadingNftRecord}
       />
-    </>
+    </Card>
   );
 };
 

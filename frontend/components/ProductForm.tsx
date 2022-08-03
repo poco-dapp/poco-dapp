@@ -1,5 +1,5 @@
 import React, { FC, useContext, useState } from "react";
-import { Button, Input, Space, Form, Upload, Typography, message } from "antd";
+import { Button, Input, Space, Form, Upload, Typography, message, Card } from "antd";
 import { css } from "@emotion/react";
 import TextArea from "antd/lib/input/TextArea";
 import { UploadOutlined } from "@ant-design/icons";
@@ -143,7 +143,7 @@ const ProductForm: FC = () => {
   };
 
   return (
-    <>
+    <Card>
       <Form
         layout="vertical"
         labelCol={{ span: 24 }}
@@ -247,7 +247,7 @@ const ProductForm: FC = () => {
         isLoadingRecord={isLoadingNftRecord}
         onFinishLoadingRecord={handleFinishLoadingNftRecord}
       />
-    </>
+    </Card>
   );
 };
 

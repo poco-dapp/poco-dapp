@@ -109,7 +109,8 @@ const NftRecordModal: FC<NftRecordModalProps> = ({
                 margin-left: 16px;
               `}
             >
-              Processing Product Digital Certificate...
+              Processing Product Digital Certificate... (may take a few minutes to accurately
+              process blockchain data)
             </span>
           </div>
         )}
